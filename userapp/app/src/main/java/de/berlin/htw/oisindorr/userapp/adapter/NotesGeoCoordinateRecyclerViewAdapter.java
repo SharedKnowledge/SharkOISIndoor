@@ -8,6 +8,8 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import de.berlin.htw.oisindorr.userapp.R;
 import de.berlin.htw.oisindorr.userapp.fragments.NoteFragment;
 import de.berlin.htw.oisindorr.userapp.model.GeoCoordinate;
@@ -30,16 +32,16 @@ public class NotesGeoCoordinateRecyclerViewAdapter extends RecyclerView.Adapter<
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.mItem = mValues.get(position);
-        holder.latitudeText.setText(""+mValues.get(position).getLatitude());
-        holder.longitudeText.setText(""+mValues.get(position).getLongitude());
-        holder.textText.setText(mValues.get(position).getText());
+        final GeoCoordinate item = mValues.get(position);
+        holder.latitudeText.setText(String.valueOf(item.getLatitude()));
+        holder.longitudeText.setText(String.valueOf(item.getLongitude()));
+        holder.textText.setText(String.valueOf(item.getAltitude()));
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (null != mListener) {
-                    mListener.onListClicked(holder.mItem);
+                    mListener.onListClicked(item);
                 }
             }
         });
@@ -51,23 +53,16 @@ public class NotesGeoCoordinateRecyclerViewAdapter extends RecyclerView.Adapter<
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View mView;
-        public final TextView latitudeText;
-        public final TextView longitudeText;
-        public final TextView textText;
-        public GeoCoordinate mItem;
+        private final View mView;
+        @Bind(R.id.item_notes_lat) TextView latitudeText;
+        @Bind(R.id.item_notes_lon) TextView longitudeText;
+        @Bind(R.id.item_notes_alt) TextView textText;
 
         public ViewHolder(View view) {
             super(view);
+            ButterKnife.bind(this, view);
             mView = view;
-            latitudeText = (TextView) view.findViewById(R.id.item_notes_lat);
-            longitudeText = (TextView) view.findViewById(R.id.item_notes_lon);
-            textText = (TextView) view.findViewById(R.id.item_notes_alt);
-        }
-
-        @Override
-        public String toString() {
-            return super.toString() + " '" + textText.getText() + "'";
         }
     }
+
 }

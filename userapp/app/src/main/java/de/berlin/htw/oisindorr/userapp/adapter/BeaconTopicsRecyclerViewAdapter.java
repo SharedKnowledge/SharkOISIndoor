@@ -8,6 +8,8 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import de.berlin.htw.oisindorr.userapp.R;
 import de.berlin.htw.oisindorr.userapp.fragments.DetailFragment;
 import de.berlin.htw.oisindorr.userapp.model.Topic;
@@ -43,10 +45,11 @@ public class BeaconTopicsRecyclerViewAdapter extends RecyclerView.Adapter<Beacon
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View view;
-        public final TextView topicText;
+        @Bind(R.id.item_topic_title) public TextView topicText;
 
         public ViewHolder(View itemView) {
             super(itemView);
+            ButterKnife.bind(this, itemView);
             view = itemView;
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -54,7 +57,6 @@ public class BeaconTopicsRecyclerViewAdapter extends RecyclerView.Adapter<Beacon
                     callback.onTopicClicked(data.get(getAdapterPosition()));
                 }
             });
-            topicText = (TextView) view.findViewById(R.id.item_topic_title);
         }
     }
 }

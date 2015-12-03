@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "de.berlin.htw.oisindorr.userapp"
-        minSdkVersion 21
+        minSdkVersion 17
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -28,4 +28,7 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:23.1.1'
     compile 'com.android.support:cardview-v7:23.1.1'
     testCompile 'junit:junit:4.12'
+
+    // View "injection" library for Android. https://github.com/JakeWharton/butterknife
+    compile 'com.jakewharton:butterknife:7.0.1'
 }

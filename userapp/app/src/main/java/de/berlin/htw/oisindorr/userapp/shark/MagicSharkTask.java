@@ -27,4 +27,5 @@ public class MagicSharkTask extends AsyncTask<String, Void, BeaconContent> {
     protected void onPostExecute(BeaconContent beaconContent) {
         callback.onResult(beaconContent);
     }
+
 }

@@ -24,6 +24,7 @@ public class BeaconContent implements Parcelable {
     protected BeaconContent(Parcel in) {
         postion = in.readString();
         author = in.readString();
+        in.readTypedList(topics, Topic.CREATOR);
     }
 
     public String getPostion() {
@@ -72,5 +73,6 @@ public class BeaconContent implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(postion);
         dest.writeString(author);
+        dest.writeTypedList(topics);
     }
 }

@@ -16,6 +16,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import de.berlin.htw.oisindorr.userapp.fragments.DetailFragment;
 import de.berlin.htw.oisindorr.userapp.fragments.NoteFragment;
 import de.berlin.htw.oisindorr.userapp.model.GeoCoordinate;
@@ -23,22 +25,20 @@ import de.berlin.htw.oisindorr.userapp.model.GeoCoordinate;
 public class TabbedActivity extends AppCompatActivity implements NoteFragment.OnListFragmentInteractionListener {
 
     private SectionsPagerAdapter sectionsPagerAdapter;
-    private ViewPager viewPager;
-    private View content;
+    @Bind(R.id.ac_tabbed_vp) ViewPager viewPager;
+    @Bind(R.id.ac_tabbed_main_content) View content;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.ac_tabbed);
-
-        content = findViewById(R.id.ac_tabbed_main_content);
+        ButterKnife.bind(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.ac_tabbed_toolbar);
         setSupportActionBar(toolbar);
 
         sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-        viewPager = (ViewPager) findViewById(R.id.ac_tabbed_vp);
         viewPager.setAdapter(sectionsPagerAdapter);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.ac_tabbed_tablayout);
