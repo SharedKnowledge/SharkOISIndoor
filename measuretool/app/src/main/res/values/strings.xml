@@ -5,7 +5,7 @@
     <string name="inputLongitude">Longitude</string>
     <string name="InputCommandGeo">Enter your current coordinates</string>
     <string name="InputCommandDistance">Enter distance and angle</string>
-    <string name="list">list</string>
+    <string name="apply">apply</string>
     <string name="calculate">calculate</string>
     <string name="newlatidue">New Latitude</string>
     <string name="newlongitude">New Longitude</string>

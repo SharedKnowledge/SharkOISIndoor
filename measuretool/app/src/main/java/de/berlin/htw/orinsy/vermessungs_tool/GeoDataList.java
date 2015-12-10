@@ -4,15 +4,19 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
+
+import org.simpleframework.xml.core.Persister;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class GeoDataList extends Activity {
 
@@ -23,8 +27,11 @@ public class GeoDataList extends Activity {
     private String checkedItem = "null";
     private ListView lvMain;
     private Intent intent;
-    private FileWriter writer;
-    private File file;
+    private List<GeoData> allGeoData;
+    private File dataFile;
+    private Measurement measurementXml;
+    private Persister serializerXml;
+    private File xmlFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +39,21 @@ public class GeoDataList extends Activity {
         setContentView(R.layout.geo_data_list);
 
         results = new ArrayList<>();
-        file = new File(Environment.getExternalStorageDirectory(), "geoData.xml");
+
+        allGeoData = new ArrayList<>();
+        measurementXml = new Measurement();
+        serializerXml = new Persister();
+        dataFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_NOTIFICATIONS) + "geoData.mgs");
+        xmlFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_NOTIFICATIONS), "geoData.xml");
+
+        try{
+            allGeoData = GeoDataLoad.loadGeoData(dataFile);
+            for (int i = 0; i < allGeoData.size(); i++) {
+                Log.d("DebugList List", allGeoData.get(i).getInfo());
+            }
+        } catch (IOException ex){
+            Log.e("DataFile Load", "Lesen der geoData.mgd fehlgeschlagen");
+        }
 
         subActivityExtras = getIntent().getExtras();
 
@@ -55,7 +76,6 @@ public class GeoDataList extends Activity {
     public void onClick(View view){
 
         SparseBooleanArray sbArray = lvMain.getCheckedItemPositions();
-
         try{
             switch(view.getId()) {
 
@@ -65,6 +85,7 @@ public class GeoDataList extends Activity {
                         int key = sbArray.keyAt(i);
                         if (sbArray.get(key));
                         results.remove(lvMain.getCheckedItemPosition());
+                       // allGeoData.remove(lvMain.getCheckedItemPosition());
                     }
                     adapter.notifyDataSetChanged();
                     break;
@@ -82,18 +103,16 @@ public class GeoDataList extends Activity {
                     finish();
                     break;
 
-                /**
-
                 case R.id.btn_export_file:
 
                     try{
-                        this.write(results, file);
+                        measurementXml.setGeoData(allGeoData);
+                        serializerXml.write(measurementXml, xmlFile);
                     }   catch (IOException ex) {
+                        Log.e("DebugXML", "xml Datei nicht erstellt");
                         Toast.makeText(GeoDataList.this, "Speichern fehlgeschlagen", Toast.LENGTH_SHORT).show();
                     }
                     break;
-
-                 */
 
                 default:
                     break;
@@ -112,21 +131,6 @@ public class GeoDataList extends Activity {
 
     }
 
-    public void  write(ArrayList<String> allGeoData, File file) throws IOException{
 
-        writer = new FileWriter(file);
-        writer.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
 
-        for( int i = 0; i < allGeoData.size(); i++){
-            writer.write("<GeoData  content=\"" + allGeoData.get(i));
-            writer.write("</GeoData>");
-        }
-
-        writer.flush();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
 }

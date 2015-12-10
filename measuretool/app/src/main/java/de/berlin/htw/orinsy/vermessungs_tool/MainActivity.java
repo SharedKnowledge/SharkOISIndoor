@@ -7,16 +7,22 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.core.Persister;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends Activity {
+
+    // Test for Bitbucket
 
     private ArrayList<String> results;
     private Intent intent;
@@ -30,6 +36,11 @@ public class MainActivity extends Activity {
     private CalculateGeoData geoData;
     private InputMethodManager inputManager;
     private static int SUBACTIVITY_REQUESTCODE = 10;
+    private List<GeoData> allGeoData;
+    private Serializer serializerXml;
+    private Measurement measurementXml;
+    private GeoData geoDataXml;
+    private File dataFile;
 
 
     @Override
@@ -46,6 +57,20 @@ public class MainActivity extends Activity {
         textView2 = (TextView) findViewById(R.id.tv_result_new_longitude);
         textView4 = (TextView) findViewById(R.id.textView4);
         results = new ArrayList<>();
+
+        allGeoData = new ArrayList<>();
+        measurementXml = new Measurement();
+        serializerXml = new Persister();
+        dataFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_NOTIFICATIONS) + "geoData.mgs");
+        try{
+                allGeoData = GeoDataLoad.loadGeoData(dataFile);
+            for (int i = 0; i < allGeoData.size(); i++) {
+                Log.d("DebugList", allGeoData.get(i).getInfo());
+            }
+        } catch (IOException ex){
+            Log.e("DataFile Load", "Lesen der geoData.mgd fehlgeschlagen");
+        }
+
     }
 
     public void onClick(View view) {
@@ -91,6 +116,22 @@ public class MainActivity extends Activity {
                             textView2.setText(String.valueOf(newLongitude));
                             textView4.setVisibility(View.VISIBLE);
 
+
+                            try {
+                                geoDataXml = new GeoData(info, height, newLatitude, newLongitude);
+                                allGeoData.add(geoDataXml);
+
+
+                                for (int i = 0; i < allGeoData.size(); i++){
+                                    Log.d("DebugList", allGeoData.get(i).getInfo());
+                                    Log.d("DebugList", allGeoData.get(i).toString());
+                                }
+
+                                GeoDataSave.saveGeoData(allGeoData);
+
+                            } catch (Exception ex){
+                                Log.e("DataFile Save", "speichern der geoData.mgd fehlgeschlagen");
+                            }
                             results.add("Info: " + info + "  Height: " + height + "\nLa: " + newLatitude + "\nLo: " + newLongitude);
 
                         } // End of onClick(DialogInterface dialog, int whichButton)
@@ -109,7 +150,6 @@ public class MainActivity extends Activity {
 
                     intent = new Intent(this, GeoDataList.class).putStringArrayListExtra("newGeoDatas", results);
                     startActivityForResult(intent, SUBACTIVITY_REQUESTCODE);
-                    break;
 
                 default:
                     break;

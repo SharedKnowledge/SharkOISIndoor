@@ -4,11 +4,12 @@ package de.berlin.htw.orinsy.vermessungs_tool;
  * Created by Maik on 24/11/15.
  */
 public class CalculateGeoData {
-
+    
     private double latitude;
     private double longitude;
     private double distance;
     private double angle;
+
 
     public CalculateGeoData(double latitude, double longitude, double distance, double angle) {
 
@@ -43,16 +44,6 @@ public class CalculateGeoData {
         double changeInDecimalGrade = longitudeInMeter * changeLongitudeDirectionInMeter;
 
         return this.longitude = this.longitude + changeInDecimalGrade;
-    }
-
-    public double getLatitude(){
-
-        return this.latitude;
-    }
-
-    public double getLongitude(){
-
-        return this.longitude;
     }
 
 }
