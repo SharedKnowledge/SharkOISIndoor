@@ -13,10 +13,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import org.simpleframework.xml.Serializer;
-import org.simpleframework.xml.core.Persister;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,11 +33,9 @@ public class MainActivity extends Activity {
     private CalculateGeoData geoData;
     private InputMethodManager inputManager;
     private static int SUBACTIVITY_REQUESTCODE = 10;
-    private List<GeoData> allGeoData;
-    private Serializer serializerXml;
-    private Measurement measurementXml;
+    private List<GeoData> newGeoDataList;
     private GeoData geoDataXml;
-    private File dataFile;
+    private File newDataFile;
 
 
     @Override
@@ -57,18 +52,11 @@ public class MainActivity extends Activity {
         textView2 = (TextView) findViewById(R.id.tv_result_new_longitude);
         textView4 = (TextView) findViewById(R.id.textView4);
         results = new ArrayList<>();
+        newGeoDataList = new ArrayList<>();
+        newDataFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_NOTIFICATIONS) + "newGeoData.mgs");
 
-        allGeoData = new ArrayList<>();
-        measurementXml = new Measurement();
-        serializerXml = new Persister();
-        dataFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_NOTIFICATIONS) + "geoData.mgs");
-        try{
-                allGeoData = GeoDataLoad.loadGeoData(dataFile);
-            for (int i = 0; i < allGeoData.size(); i++) {
-                Log.d("DebugList", allGeoData.get(i).getInfo());
-            }
-        } catch (IOException ex){
-            Log.e("DataFile Load", "Lesen der geoData.mgd fehlgeschlagen");
+        if (newDataFile.exists()){
+            newDataFile.delete();
         }
 
     }
@@ -116,22 +104,24 @@ public class MainActivity extends Activity {
                             textView2.setText(String.valueOf(newLongitude));
                             textView4.setVisibility(View.VISIBLE);
 
-
                             try {
+
                                 geoDataXml = new GeoData(info, height, newLatitude, newLongitude);
-                                allGeoData.add(geoDataXml);
-
-
-                                for (int i = 0; i < allGeoData.size(); i++){
-                                    Log.d("DebugList", allGeoData.get(i).getInfo());
-                                    Log.d("DebugList", allGeoData.get(i).toString());
+                                if (newDataFile.exists()){
+                                    newGeoDataList = GeoDataLoad.loadGeoData(newDataFile);
                                 }
+                                newGeoDataList.add(geoDataXml);
 
-                                GeoDataSave.saveGeoData(allGeoData);
+                                for (int i = 0; i < newGeoDataList.size(); i++){
+                                    Log.d("Debug ListNEWCR", newGeoDataList.get(i).getInfo());
+                                }
+                                GeoDataSave.saveGeoData(newGeoDataList, newDataFile);
 
                             } catch (Exception ex){
-                                Log.e("DataFile Save", "speichern der geoData.mgd fehlgeschlagen");
+                                Log.e("Data FileSave", "speichern der newGeoData.mgd fehlgeschlagen");
                             }
+
+
                             results.add("Info: " + info + "  Height: " + height + "\nLa: " + newLatitude + "\nLo: " + newLongitude);
 
                         } // End of onClick(DialogInterface dialog, int whichButton)

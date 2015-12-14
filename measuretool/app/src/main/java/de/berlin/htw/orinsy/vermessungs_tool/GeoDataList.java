@@ -28,10 +28,12 @@ public class GeoDataList extends Activity {
     private ListView lvMain;
     private Intent intent;
     private List<GeoData> allGeoData;
-    private File dataFile;
+    private List<GeoData> newGeoDataList;
     private Measurement measurementXml;
     private Persister serializerXml;
     private File xmlFile;
+    private File dataFile;
+    private File newDataFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,20 +41,21 @@ public class GeoDataList extends Activity {
         setContentView(R.layout.geo_data_list);
 
         results = new ArrayList<>();
-
+        newGeoDataList = new ArrayList<>();
         allGeoData = new ArrayList<>();
         measurementXml = new Measurement();
         serializerXml = new Persister();
-        dataFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_NOTIFICATIONS) + "geoData.mgs");
-        xmlFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_NOTIFICATIONS), "geoData.xml");
+        newDataFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_NOTIFICATIONS) + "newGeoData.mgs");
+        dataFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_NOTIFICATIONS)  + "geoData.mgs");
+        xmlFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_NOTIFICATIONS) , "geoData.xml");
 
         try{
-            allGeoData = GeoDataLoad.loadGeoData(dataFile);
-            for (int i = 0; i < allGeoData.size(); i++) {
-                Log.d("DebugList List", allGeoData.get(i).getInfo());
+            newGeoDataList = GeoDataLoad.loadGeoData(newDataFile);
+            for (int i = 0; i < newGeoDataList.size(); i++) {
+                Log.d("Debug ListNEW", newGeoDataList.get(i).getInfo());
             }
         } catch (IOException ex){
-            Log.e("DataFile Load", "Lesen der geoData.mgd fehlgeschlagen");
+            Log.e("Debug FileLoad", "Lesen der newGeoData.mgd fehlgeschlagen");
         }
 
         subActivityExtras = getIntent().getExtras();
@@ -85,7 +88,13 @@ public class GeoDataList extends Activity {
                         int key = sbArray.keyAt(i);
                         if (sbArray.get(key));
                         results.remove(lvMain.getCheckedItemPosition());
-                       // allGeoData.remove(lvMain.getCheckedItemPosition());
+
+                    }
+
+                    newGeoDataList.remove(lvMain.getCheckedItemPosition());
+                    GeoDataSave.saveGeoData(newGeoDataList, newDataFile);
+                    for (int i = 0; i < newGeoDataList.size(); i++) {
+                        Log.d("Debug ListREMOVE", newGeoDataList.get(i).getInfo());
                     }
                     adapter.notifyDataSetChanged();
                     break;
@@ -106,10 +115,23 @@ public class GeoDataList extends Activity {
                 case R.id.btn_export_file:
 
                     try{
+                        if (dataFile.exists()){
+                            allGeoData = GeoDataLoad.loadGeoData(dataFile);
+                            for (int i = 0; i < allGeoData.size(); i++) {
+                                Log.d("Debug ListALL", allGeoData.get(i).getInfo());
+                            }
+                        }
+                        for (int i = 0; i < newGeoDataList.size(); i++) {
+                            allGeoData.add(newGeoDataList.get(i));
+                        }
+                        GeoDataSave.saveGeoData(allGeoData, dataFile);
+                        for (int i = 0; i < allGeoData.size(); i++) {
+                            Log.d("Debug ListEXPORT", allGeoData.get(i).getInfo());
+                        }
                         measurementXml.setGeoData(allGeoData);
                         serializerXml.write(measurementXml, xmlFile);
                     }   catch (IOException ex) {
-                        Log.e("DebugXML", "xml Datei nicht erstellt");
+                        Log.e("Debug XML", "xml Datei nicht erstellt");
                         Toast.makeText(GeoDataList.this, "Speichern fehlgeschlagen", Toast.LENGTH_SHORT).show();
                     }
                     break;

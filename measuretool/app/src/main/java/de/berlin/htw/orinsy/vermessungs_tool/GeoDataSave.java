@@ -14,9 +14,8 @@ import java.util.List;
 public class GeoDataSave {
 
 
-    public static void saveGeoData(List<GeoData> allGeoData) throws IOException {
+    public static void saveGeoData(List<GeoData> allGeoData, File dataFile) throws IOException {
 
-        File dataFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_NOTIFICATIONS) + "geoData.mgs");
 
         FileOutputStream out = new FileOutputStream(dataFile);
         OutputStreamWriter writer = new OutputStreamWriter(out);
