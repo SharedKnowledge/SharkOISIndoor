@@ -1,0 +1,16 @@
+<resources>
+
+    <!-- Main-Activity-->
+    <string name="app_name">OIS-Indoor Admin</string>
+    <string name="middleButton_TXT">Einstellungen übernehmen</string>
+    <string name="latitude_TXT">Latitude</string>
+    <string name="longitude_TXT">Longitude</string>
+    <string name="altitude_TXT">Altitude</string>
+    <string name="topic_TXT">Thema</string>
+    <string name="author_TXT">Autor</string>
+    <string name="content_TXT">Inhalt</string>
+
+    <!-- Magic-Activity-->
+    <string name="title_activity_magic">MagicActivity</string>
+</resources>
+
