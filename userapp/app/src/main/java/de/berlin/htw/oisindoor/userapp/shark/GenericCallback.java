@@ -1,4 +1,4 @@
-package de.berlin.htw.oisindorr.userapp.shark;
+package de.berlin.htw.oisindoor.userapp.shark;
 
 /**
  * Created by Max on 30.11.2015.

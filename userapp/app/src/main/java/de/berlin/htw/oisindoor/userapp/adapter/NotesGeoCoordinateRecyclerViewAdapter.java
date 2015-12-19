@@ -1,4 +1,4 @@
-package de.berlin.htw.oisindorr.userapp.adapter;
+package de.berlin.htw.oisindoor.userapp.adapter;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,9 +10,9 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import de.berlin.htw.oisindorr.userapp.R;
-import de.berlin.htw.oisindorr.userapp.fragments.NoteFragment;
-import de.berlin.htw.oisindorr.userapp.model.GeoCoordinate;
+import de.berlin.htw.oisindoor.userapp.R;
+import de.berlin.htw.oisindoor.userapp.fragments.NoteFragment;
+import de.berlin.htw.oisindoor.userapp.model.GeoCoordinate;
 
 public class NotesGeoCoordinateRecyclerViewAdapter extends RecyclerView.Adapter<NotesGeoCoordinateRecyclerViewAdapter.ViewHolder> {
 

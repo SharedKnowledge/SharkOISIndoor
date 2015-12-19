@@ -1,9 +1,9 @@
-package de.berlin.htw.oisindorr.userapp.shark;
+package de.berlin.htw.oisindoor.userapp.shark;
 
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 
-import de.berlin.htw.oisindorr.userapp.model.BeaconContent;
+import de.berlin.htw.oisindoor.userapp.model.BeaconContent;
 
 /**
  * Created by Max on 30.11.2015.

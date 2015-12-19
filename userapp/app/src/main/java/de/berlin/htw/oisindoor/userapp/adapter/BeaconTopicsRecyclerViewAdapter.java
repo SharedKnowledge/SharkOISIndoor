@@ -1,4 +1,4 @@
-package de.berlin.htw.oisindorr.userapp.adapter;
+package de.berlin.htw.oisindoor.userapp.adapter;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,18 +10,18 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import de.berlin.htw.oisindorr.userapp.R;
-import de.berlin.htw.oisindorr.userapp.fragments.DetailFragment;
-import de.berlin.htw.oisindorr.userapp.model.Topic;
+import de.berlin.htw.oisindoor.userapp.R;
+import de.berlin.htw.oisindoor.userapp.fragments.PositioningFragment;
+import de.berlin.htw.oisindoor.userapp.model.Topic;
 
 /**
  * Created by Max on 26.11.2015.
  */
 public class BeaconTopicsRecyclerViewAdapter extends RecyclerView.Adapter<BeaconTopicsRecyclerViewAdapter.ViewHolder> {
     private final List<Topic> data;
-    private final DetailFragment.TopicListener callback;
+    private final PositioningFragment.TopicListener callback;
 
-    public BeaconTopicsRecyclerViewAdapter(List<Topic> data, DetailFragment.TopicListener callback) {
+    public BeaconTopicsRecyclerViewAdapter(List<Topic> data, PositioningFragment.TopicListener callback) {
         this.data = data;
         this.callback = callback;
     }

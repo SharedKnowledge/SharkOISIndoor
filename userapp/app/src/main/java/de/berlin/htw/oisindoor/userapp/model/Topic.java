@@ -1,4 +1,4 @@
-package de.berlin.htw.oisindorr.userapp.model;
+package de.berlin.htw.oisindoor.userapp.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;

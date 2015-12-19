@@ -1,4 +1,4 @@
-package de.berlin.htw.oisindorr.userapp.fragments;
+package de.berlin.htw.oisindoor.userapp.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -13,9 +13,9 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.berlin.htw.oisindorr.userapp.R;
-import de.berlin.htw.oisindorr.userapp.adapter.NotesGeoCoordinateRecyclerViewAdapter;
-import de.berlin.htw.oisindorr.userapp.model.GeoCoordinate;
+import de.berlin.htw.oisindoor.userapp.R;
+import de.berlin.htw.oisindoor.userapp.adapter.NotesGeoCoordinateRecyclerViewAdapter;
+import de.berlin.htw.oisindoor.userapp.model.GeoCoordinate;
 
 public class NoteFragment extends Fragment {
     private static final String ARG_LIST = "geolist";
