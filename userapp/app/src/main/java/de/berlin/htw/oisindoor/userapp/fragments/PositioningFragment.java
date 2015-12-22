@@ -1,5 +1,7 @@
 package de.berlin.htw.oisindoor.userapp.fragments;
 
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -28,8 +30,7 @@ import de.berlin.htw.oisindoor.userapp.model.Topic;
 /**
  * Created by Max on 23.11.2015.
  */
-public class PositioningFragment extends Fragment {
-    private static final String TAG = PositioningFragment.class.getName();
+public class PositioningFragment extends Fragment implements IPositioning {
 
     public static PositioningFragment newInstance() {
         return new PositioningFragment();
@@ -39,9 +40,18 @@ public class PositioningFragment extends Fragment {
         void onTopicClicked(@NonNull Topic t);
     }
 
+    private static final String TAG = PositioningFragment.class.getSimpleName();
+
     @Bind(R.id.f_positioning_lat) TextView latText;
     @Bind(R.id.f_positioning_lon) TextView lonText;
     @Bind(R.id.f_positioning_alt) TextView altText;
+    private ProgressDialog dialog;
+    /**
+     * Workaround because the activity is faster then the fragment instantiation when bluetooth is already enabled,
+     * i.e. not ready to show a dialog
+     * so add a pending flag
+     */
+    private boolean isDialogPending = false;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -64,21 +74,74 @@ public class PositioningFragment extends Fragment {
             @Override
             public void onTopicClicked(@NonNull Topic t) {
                 Log.d(TAG, "onTopicClicked: " + t);
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(t.getTargetURL()));
-                startActivity(browserIntent);
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(t.getTargetURL())));
             }
         }));
         return v;
     }
 
-    public void updatePosition(String url){
-        Log.d(TAG, "onReceive " + url);
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        if (isDialogPending) {
+            showSearchingDialog();
+        }
+    }
+
+    /*
+     * IPositioning
+     */
+
+    public void showSearchingDialog() {
+        if (isAdded()) {
+            isDialogPending = false;
+            showDialog();
+        } else {
+            isDialogPending = true;
+        }
+    }
+
+    @Override
+    public void cancelSearchingDialog() {
+        if (dialog != null) {
+            dialog.dismiss();
+        }
+    }
+
+    public void updatePosition(@NonNull String url){
+        Log.d(TAG, "updatePosition " + url);
+        if (dialog != null) {
+            dialog.dismiss();
+        }
+        url = url.substring(2); // FIXME: Coding and co problems
         List<String> t = readPropperGEO(url);
         latText.setText(t.get(0));
         lonText.setText(t.get(1));
         altText.setText(t.get(2));
     }
 
+    /*
+     * Stuff
+     */
+
+    private void showDialog() {
+        dialog = new ProgressDialog(getActivity());
+        dialog.setIcon(R.mipmap.perm_group_bluetooth);
+        dialog.setTitle(R.string.bt_searchForBeacons);
+        dialog.setCancelable(true);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        dialog.setIndeterminate(true);
+        dialog.show();
+    }
+
+    // thx to Stefan J.
     private List<String> readPropperGEO(String geoAsString) {
         List<String> results = new ArrayList<>();
         Pattern pattern = Pattern.compile("\\d{1,3}\\.\\d*");
@@ -88,5 +151,5 @@ public class PositioningFragment extends Fragment {
         }
         return results;
     }
-}
 
+}

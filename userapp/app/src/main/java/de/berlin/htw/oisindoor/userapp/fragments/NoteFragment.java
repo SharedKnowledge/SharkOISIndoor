@@ -20,7 +20,7 @@ import de.berlin.htw.oisindoor.userapp.model.GeoCoordinate;
 public class NoteFragment extends Fragment {
     private static final String ARG_LIST = "geolist";
 
-    public static NoteFragment newInstance(ArrayList<GeoCoordinate> l) {
+    public static NoteFragment newInstance(@NonNull ArrayList<GeoCoordinate> l) {
         NoteFragment fragment = new NoteFragment();
         Bundle args = new Bundle();
         args.putParcelableArrayList(ARG_LIST, l);
@@ -28,8 +28,12 @@ public class NoteFragment extends Fragment {
         return fragment;
     }
 
+    public interface OnListFragmentInteractionListener {
+        void onListClicked(@NonNull GeoCoordinate item);
+    }
+
     private List<GeoCoordinate> list;
-    private OnListFragmentInteractionListener mListener;
+    private OnListFragmentInteractionListener listener;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -41,7 +45,7 @@ public class NoteFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof OnListFragmentInteractionListener) {
-            mListener = (OnListFragmentInteractionListener) context;
+            listener = (OnListFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString() + " must implement OnListFragmentInteractionListener");
         }
@@ -59,25 +63,17 @@ public class NoteFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.f_notes, container, false);
-
-        if (view instanceof RecyclerView) {
-            Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
-            recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            recyclerView.setAdapter(new NotesGeoCoordinateRecyclerViewAdapter(list, mListener));
-        }
-        return view;
+        RecyclerView recyclerView = (RecyclerView) inflater.inflate(R.layout.f_notes, container, false);
+        recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setAdapter(new NotesGeoCoordinateRecyclerViewAdapter(list, listener));
+        return recyclerView;
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
+        listener = null;
     }
 
-
-    public interface OnListFragmentInteractionListener {
-        void onListClicked(@NonNull GeoCoordinate item);
-    }
 }

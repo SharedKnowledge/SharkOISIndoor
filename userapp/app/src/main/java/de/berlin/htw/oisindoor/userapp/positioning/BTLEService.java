@@ -24,14 +24,61 @@ import java.util.Map;
  * Created by Max on 19.12.2015.
  */
 public class BTLEService extends Service {
-    public static final String ACTION = "btleAction";
-    public static final int ACTION_START = 78;
-    public static final int ACTION_STOP = 79;
-    public static final String ACTION_LOCATION = "de.berlin.htw.oisindoor.userapp.positioning.location";
-    public static final String ACTION_LOCATION_VALUE = "de.berlin.htw.oisindoor.userapp.positioning.location_value";
+    public static final String RESPONSE_LOCATION = "de.berlin.htw.oisindoor.userapp.positioning.location";
+    public static final String RESPONSE_LOCATION_VALUE = "de.berlin.htw.oisindoor.userapp.positioning.location_value";
+    public static final String RESPONSE_ERROR = "de.berlin.htw.oisindoor.userapp.positioning.error";
+    public static final String RESPONSE_ERROR_VALUE = "de.berlin.htw.oisindoor.userapp.positioning.error_value";
+
+    public static void startService(Context context) {
+        Intent startIntent = new Intent(context, BTLEService.class);
+        startIntent.putExtra(ACTION, ACTION_START);
+        context.startService(startIntent);
+    }
+
+    public static void stopService(Context context){
+        Intent stopIntent = new Intent(context, BTLEService.class);
+        stopIntent.putExtra(ACTION, ACTION_STOP);
+        context.startService(stopIntent);
+    }
 
     private static final String TAG = BTLEService.class.getSimpleName();
+    private static final String ACTION = "btleAction";
+    private static final int ACTION_START = 78;
+    private static final int ACTION_STOP = 79;
+    private static final Charset UTF8 = Charset.forName("UTF-8");
+
     private BluetoothAdapter bluetoothAdapter;
+    private ScanCallback scanCallback = new ScanCallback() {
+        @Override
+        public void onScanResult(int callbackType, ScanResult result) { // 78:A5:04:4A:58:0F
+            Log.d(TAG, "onScanResult: " + result.toString());
+            Map<ParcelUuid, byte[]> t = result.getScanRecord().getServiceData();
+            for (ParcelUuid i : t.keySet()) {
+                String beaconContent = new String(t.get(i), UTF8).trim();
+                Log.d(TAG, i.getUuid() + " " + beaconContent);
+                sendLocationToActivity(beaconContent);
+            }
+        }
+
+        @Override
+        public void onBatchScanResults(List<ScanResult> results) {
+            Log.d(TAG, "onBatchScanResults " + results);
+        }
+
+        @Override
+        public void onScanFailed(int errorCode) {
+            String errorMsg = errorCodeToString(errorCode);
+            Log.d(TAG, "onScanFailed " + errorMsg);
+            sendErrorToActivity(errorMsg);
+            stopScanning();
+        }
+    };
+
+    private void stopScanning() {
+        if (bluetoothAdapter != null && bluetoothAdapter.getBluetoothLeScanner() != null) {
+            bluetoothAdapter.getBluetoothLeScanner().stopScan(scanCallback);
+        }
+    }
 
     @Nullable
     @Override
@@ -47,51 +94,56 @@ public class BTLEService extends Service {
             case ACTION_START:
                 BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
                 bluetoothAdapter = bluetoothManager.getAdapter();
-                bluetoothAdapter.enable();
+                if (!bluetoothAdapter.isEnabled()) {
+                    Log.d(TAG, "Bluetooth is disabled");
+                    stopSelf();
+                    break;
+                }
+                stopScanning();
+                Log.d(TAG, "startSearching");
                 ScanFilter f = new ScanFilter.Builder().setDeviceAddress("78:A5:04:4A:58:0F").build();
                 List<ScanFilter> l = new ArrayList<>(); l.add(f);
                 bluetoothAdapter.getBluetoothLeScanner().startScan(l, new ScanSettings.Builder().build(), scanCallback);
                 break;
+
             case ACTION_STOP:
-                if (bluetoothAdapter != null) {
-                    bluetoothAdapter.getBluetoothLeScanner().stopScan(scanCallback);
-                    stopSelf();
-                }
+                stopScanning();
+                stopSelf();
                 break;
+
             default:
+                stopScanning();
+                stopSelf();
                 break;
         }
         return START_NOT_STICKY;
     }
 
-    private ScanCallback scanCallback = new ScanCallback() {
-        @Override
-        public void onScanResult(int callbackType, ScanResult result) { // 78:A5:04:4A:58:0F
-            Log.d(TAG, "onScanResult: " + result.toString());
-            Map<ParcelUuid, byte[]> t = result.getScanRecord().getServiceData();
-            for (ParcelUuid i : t.keySet()) {
-                String beaconContent = new String(t.get(i), Charset.forName("UTF-8")).trim();
-                Log.d(TAG, i.getUuid() + " " + beaconContent);
-                sendLocationToActivity(beaconContent);
-            }
-        }
-
-        @Override
-        public void onBatchScanResults(List<ScanResult> results) {
-            Log.d(TAG, "onBatchScanResults " + results);
-        }
-
-        @Override
-        public void onScanFailed(int errorCode) {
-            Log.d(TAG, "onBatchScanResults " + errorCode);
-        }
-    };
-
     public void sendLocationToActivity(String url){
-        Intent i = new Intent(ACTION_LOCATION);
-        i.putExtra(ACTION_LOCATION_VALUE, url);
-        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(this);
-        manager.sendBroadcast(i);
+        Intent i = new Intent(RESPONSE_LOCATION);
+        i.putExtra(RESPONSE_LOCATION_VALUE, url);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(i);
+    }
+
+    public void sendErrorToActivity(String errorMsg){
+        Intent i = new Intent(RESPONSE_ERROR);
+        i.putExtra(RESPONSE_ERROR_VALUE, errorMsg);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(i);
+    }
+
+    private String errorCodeToString(int code) {
+        switch (code){
+            case ScanCallback.SCAN_FAILED_ALREADY_STARTED:
+                return "SCAN_FAILED_ALREADY_STARTED";
+            case ScanCallback.SCAN_FAILED_APPLICATION_REGISTRATION_FAILED:
+                return "SCAN_FAILED_APPLICATION_REGISTRATION_FAILED";
+            case ScanCallback.SCAN_FAILED_FEATURE_UNSUPPORTED:
+                return "SCAN_FAILED_FEATURE_UNSUPPORTED";
+            case ScanCallback.SCAN_FAILED_INTERNAL_ERROR:
+                return "SCAN_FAILED_INTERNAL_ERROR";
+            default:
+                return "Unknown: " + code;
+        }
     }
 
 }

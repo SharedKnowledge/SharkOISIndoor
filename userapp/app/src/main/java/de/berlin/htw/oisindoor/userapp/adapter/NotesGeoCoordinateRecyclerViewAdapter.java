@@ -36,15 +36,6 @@ public class NotesGeoCoordinateRecyclerViewAdapter extends RecyclerView.Adapter<
         holder.latitudeText.setText(String.valueOf(item.getLatitude()));
         holder.longitudeText.setText(String.valueOf(item.getLongitude()));
         holder.textText.setText(String.valueOf(item.getAltitude()));
-
-        holder.mView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != mListener) {
-                    mListener.onListClicked(item);
-                }
-            }
-        });
     }
 
     @Override
@@ -53,7 +44,6 @@ public class NotesGeoCoordinateRecyclerViewAdapter extends RecyclerView.Adapter<
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        private final View mView;
         @Bind(R.id.item_notes_lat) TextView latitudeText;
         @Bind(R.id.item_notes_lon) TextView longitudeText;
         @Bind(R.id.item_notes_alt) TextView textText;
@@ -61,7 +51,14 @@ public class NotesGeoCoordinateRecyclerViewAdapter extends RecyclerView.Adapter<
         public ViewHolder(View view) {
             super(view);
             ButterKnife.bind(this, view);
-            mView = view;
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (null != mListener) {
+                        mListener.onListClicked(mValues.get(getAdapterPosition()));
+                    }
+                }
+            });
         }
     }
 

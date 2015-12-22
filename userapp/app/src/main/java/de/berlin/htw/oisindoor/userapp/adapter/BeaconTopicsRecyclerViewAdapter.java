@@ -44,14 +44,12 @@ public class BeaconTopicsRecyclerViewAdapter extends RecyclerView.Adapter<Beacon
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View view;
         @Bind(R.id.item_topic_title) public TextView topicText;
 
         public ViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
-            view = itemView;
-            view.setOnClickListener(new View.OnClickListener() {
+            itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     callback.onTopicClicked(data.get(getAdapterPosition()));

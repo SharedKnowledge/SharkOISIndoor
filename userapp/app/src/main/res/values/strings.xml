@@ -1,8 +1,13 @@
 <resources>
     <string name="app_name">InHTW</string>
     <string name="action_settings">Settings</string>
+    <string name="action_bluetooth_settings">BluetoothSettings</string>
 
-    <string name="lorem">Lorem ipsum dolor sit <a href="https://www.htw-berlin.de/">HTW</a> amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet,consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore</string>
     <string name="myLocation">Mein Standort</string>
     <string name="myLocationBeaconContent">Beacon</string>
-</resources>
+
+    <string name="bt_permission">BlueTooth Permission</string>
+    <string name="bt_permission_text">We need the bluetooth permission to work correctly&#8230;</string>
+    <string name="bt_permission_enable_text">we need bluetooth to work correctly&#8230;</string>
+    <string name="bt_searchForBeacons">Searching for Signals&#8230;</string>
+   </resources>

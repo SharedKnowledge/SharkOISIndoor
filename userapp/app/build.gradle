@@ -32,4 +32,8 @@ dependencies {
 
     // View "injection" library for Android. https://github.com/JakeWharton/butterknife
     compile 'com.jakewharton:butterknife:7.0.1'
+
+    // Android library that simplifies the process of requesting permissions at runtime. https://github.com/Karumi/Dexter
+    compile 'com.karumi:dexter:2.1.4'
+
 }
