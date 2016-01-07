@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/floor_0"
+        android:title="@string/floor_0"/>
+
+    <item
+        android:id="@+id/floor_1"
+        android:title="@string/floor_1"/>
+
+    <item
+        android:id="@+id/floor_2"
+        android:title="@string/floor_2"/>
+
+    <item
+        android:id="@+id/floor_3"
+        android:title="@string/floor_3"/>
+
+
+    <item
+        android:id="@+id/floor_4"
+        android:title="@string/floor_4"/>
+
+    <item
+        android:id="@+id/floor_5"
+        android:title="@string/floor_5"/>
+
+    <item
+        android:id="@+id/floor_6"
+        android:title="@string/floor_6"/>
+
+</menu>
