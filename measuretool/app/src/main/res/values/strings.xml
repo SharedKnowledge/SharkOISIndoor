@@ -13,4 +13,24 @@
     <string name="height">Height</string>
     <string name="rm_item">rm Item</string>
     <string name="start_coordinates">set coordinate</string>
+    <string name="choose_method">Please choose your method</string>
+    <string name="GPS_method">GPS and Compass</string>
+    <string name="construction_drawing_method">Construction Drawing</string>
+    <string name="setup_coordinates">Set up coordinates</string>
+    <string name="setup_start_coordinate">Set up start coordinates</string>
+    <string name="setup_reference_coordinate">Set up reference coordinates</string>
+    <string name="input_coordinates">Enter x and y coordinates</string>
+    <string name="input_y_coordiante">y</string>
+    <string name="input_x_coordinate">x</string>
+    <string name="menu_floors">Height</string>
+    <string name="floor_0">Floor 0 (0m)</string>
+    <string name="floor_1">Floor 1 (5m)</string>
+    <string name="floor_2">Floor 2 (10m)</string>
+    <string name="floor_3">Floor 3 (15m)</string>
+    <string name="floor_4">Floor 4 (20m)</string>
+    <string name="floor_5">Floor 5 (25m)</string>
+    <string name="floor_6">Floor 6 (30m)</string>
+
+
+
 </resources>
