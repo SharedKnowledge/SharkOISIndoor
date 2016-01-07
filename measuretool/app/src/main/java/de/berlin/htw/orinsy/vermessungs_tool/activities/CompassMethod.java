@@ -58,7 +58,7 @@ public class CompassMethod extends Activity {
         textView4 = (TextView) findViewById(R.id.textView4);
         results = new ArrayList<>();
         newGeoDataList = new ArrayList<>();
-        newDataFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_NOTIFICATIONS) , "newGeoData.mgs");
+        newDataFile = new File(Environment.getExternalStorageDirectory() , "/GeoDatas/newGeoData.mgs");
 
         if (newDataFile.exists()){
             newDataFile.delete();

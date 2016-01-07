@@ -76,9 +76,9 @@ public class GeoDataList extends Activity {
         allGeoData = new ArrayList<>();
         measurementXml = new Measurement();
         serializerXml = new Persister();
-        newDataFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_NOTIFICATIONS) , "newGeoData.mgs");
-        dataFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_NOTIFICATIONS)  , "geoData.mgs");
-        xmlFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_NOTIFICATIONS) , "geoData.xml");
+        newDataFile = new File(Environment.getExternalStorageDirectory() , "/GeoDatas/newGeoData.mgs");
+        dataFile = new File(Environment.getExternalStorageDirectory() , "/GeoDatas/geoData.mgs");
+        xmlFile = new File(Environment.getExternalStorageDirectory() , "/GeoDatas/geoData.xml");
 
         try{
             newGeoDataList = GeoDataLoad.loadGeoData(newDataFile);

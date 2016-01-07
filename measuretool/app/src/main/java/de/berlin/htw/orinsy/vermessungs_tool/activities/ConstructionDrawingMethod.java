@@ -60,7 +60,7 @@ public class ConstructionDrawingMethod extends Activity {
         this.getResults = new ArrayList<>();
         this.getSetupCoordinates = new ArrayList<>();
         this.newGeoDataList = new ArrayList<>();
-        this.newDataFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_NOTIFICATIONS) , "newGeoData.mgs");
+        this.newDataFile = new File(Environment.getExternalStorageDirectory() , "/GeoDatas/newGeoData.mgs");
 
         if (this.newDataFile.exists()) {
             this.newDataFile.delete();

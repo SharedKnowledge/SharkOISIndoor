@@ -3,7 +3,11 @@ package de.berlin.htw.orinsy.vermessungs_tool.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.view.View;
+
+import java.io.File;
 
 import de.berlin.htw.orinsy.vermessungs_tool.R;
 
@@ -15,6 +19,20 @@ public class StartActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
+
+        File GeoDataFolder = new File(Environment.getExternalStorageDirectory() + "/GeoDatas");
+        boolean successCreateFolder = false;
+        if(!GeoDataFolder.exists()){
+            GeoDataFolder.mkdirs();
+            successCreateFolder = true;
+        }
+        if(successCreateFolder){
+            Log.d("FolderCREA", "Folder created!");
+        }
+        else{
+            Log.d("FolderCREA", "Folder not created.");
+        }
+
     }
 
     public void onClick(View v) {
