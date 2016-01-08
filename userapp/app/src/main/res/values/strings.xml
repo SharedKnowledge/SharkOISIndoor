@@ -7,7 +7,8 @@
     <string name="myLocationBeaconContent">Beacon</string>
 
     <string name="bt_permission">BlueTooth Permission</string>
-    <string name="bt_permission_text">We need the bluetooth permission to work correctly&#8230;</string>
-    <string name="bt_permission_enable_text">we need bluetooth to work correctly&#8230;</string>
+    <string name="bt_permission_text">We need the bluetooth permission to work correct&#8230;</string>
+    <string name="bt_permission_enable_text">we need bluetooth to work correct&#8230;</string>
     <string name="bt_searchForBeacons">Searching for Signals&#8230;</string>
-   </resources>
+    <string name="action_search">Suchen</string>
+</resources>

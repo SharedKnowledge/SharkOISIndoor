@@ -22,8 +22,10 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SearchViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -50,8 +52,10 @@ public class TabbedActivity extends AppCompatActivity implements NoteFragment.On
     private static final int ACTION_REQUEST_BT = 789;
 
     private BTLEReceiver btleReceiver;
+    private IntentFilter filter;
     private LocalBroadcastManager localBroadcastManager;
     private SectionsPagerAdapter sectionsPagerAdapter;
+    private SearchView searchView;
     @Bind(R.id.ac_tabbed_vp) ViewPager viewPager;
     @Bind(R.id.ac_tabbed_main_content) View content;
 
@@ -84,15 +88,16 @@ public class TabbedActivity extends AppCompatActivity implements NoteFragment.On
 
         btleReceiver = new BTLEReceiver();
         localBroadcastManager = LocalBroadcastManager.getInstance(this);
+
+        filter = new IntentFilter();
+        filter.addAction(BTLEService.RESPONSE_LOCATION);
+        filter.addAction(BTLEService.RESPONSE_ERROR);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         startSearching();
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BTLEService.RESPONSE_LOCATION);
-        filter.addAction(BTLEService.RESPONSE_ERROR);
         localBroadcastManager.registerReceiver(btleReceiver, filter);
     }
 
@@ -177,7 +182,7 @@ public class TabbedActivity extends AppCompatActivity implements NoteFragment.On
     }
 
     private void startSearchingForBeacons(){
-        BTLEService.startService(TabbedActivity.this);
+        BTLEService.startService(this);
         Fragment f = sectionsPagerAdapter.getItem(0);
         if (f instanceof IPositioning) {
             ((IPositioning) f).showSearchingDialog();
@@ -187,6 +192,19 @@ public class TabbedActivity extends AppCompatActivity implements NoteFragment.On
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_tabbed, menu);
+        searchView = (SearchView) menu.findItem(R.id.action_seach_topic).getActionView();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                Log.d(TAG, newText);
+                return false;
+            }
+        });
         return true;
     }
 
@@ -295,3 +313,17 @@ public class TabbedActivity extends AppCompatActivity implements NoteFragment.On
     }
 
 }
+
+
+/*
+    BeaconContent
+        Liste<Topic>
+            Topic: Thema + Autor
+    - API 19
+
+    - best rddi match
+    - mehrere Autoren in drop down menu
+    - Filter der Themen nach autor
+    - Card Title und Content (Autor?)
+
+ */

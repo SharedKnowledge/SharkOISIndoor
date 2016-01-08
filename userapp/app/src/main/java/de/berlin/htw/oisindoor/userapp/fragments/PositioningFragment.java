@@ -113,7 +113,7 @@ public class PositioningFragment extends Fragment implements IPositioning {
         if (dialog != null) {
             dialog.dismiss();
         }
-        url = url.substring(2); // FIXME: Coding and co problems
+        //url = url.substring(2); // FIXME: Coding and co problems
         List<String> t = readPropperGEO(url);
         latText.setText(t.get(0));
         lonText.setText(t.get(1));

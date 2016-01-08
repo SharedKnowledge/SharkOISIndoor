@@ -36,6 +36,8 @@ public class BeaconTopicsRecyclerViewAdapter extends RecyclerView.Adapter<Beacon
     public void onBindViewHolder(ViewHolder holder, int position) {
         Topic t = data.get(position);
         holder.topicText.setText(t.getTitle());
+        holder.authorText.setText(t.getAuthor());
+        holder.targetText.setText(t.getTargetURL());
     }
 
     @Override
@@ -45,6 +47,8 @@ public class BeaconTopicsRecyclerViewAdapter extends RecyclerView.Adapter<Beacon
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         @Bind(R.id.item_topic_title) public TextView topicText;
+        @Bind(R.id.item_topic_author) public TextView authorText;
+        @Bind(R.id.item_topic_target) public TextView targetText;
 
         public ViewHolder(View itemView) {
             super(itemView);

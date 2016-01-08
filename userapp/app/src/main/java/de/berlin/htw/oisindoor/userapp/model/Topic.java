@@ -14,20 +14,23 @@ public class Topic implements Parcelable {
     private static final String TAG = Topic.class.getName();
 
     static {
-        ITEMS.add(new Topic("Raumbelegung", "https://lsf.htw-berlin.de/qisserver/rds?state=wplan&act=Raum&pool=Raum&show=plan&P.subc=plan&raum.rgid=4343"));
-        ITEMS.add(new Topic("Prof Website", "http://people.f4.htw-berlin.de/lehrende/schwotzer/lehrveranstaltungen/mobile-informationssysteme.html"));
+        ITEMS.add(new Topic("Raumbelegung", "User1", "https://lsf.htw-berlin.de/qisserver/rds?state=wplan&act=Raum&pool=Raum&show=plan&P.subc=plan&raum.rgid=4343"));
+        ITEMS.add(new Topic("Prof Website", "User2", "https://people.f4.htw-berlin.de/lehrende/schwotzer/lehrveranstaltungen/mobile-informationssysteme.html"));
     }
 
     private String title;
+    private String author;
     private String targetURL;
 
-    public Topic(String title, String targetURL) {
+    public Topic(String title, String author, String targetURL) {
         this.title = title;
+        this.author = author;
         this.targetURL = targetURL;
     }
 
     protected Topic(Parcel in) {
         title = in.readString();
+        author = in.readString();
         targetURL = in.readString();
     }
 
@@ -35,16 +38,12 @@ public class Topic implements Parcelable {
         return title;
     }
 
-    public String getTargetURL() {
-        return targetURL;
+    public String getAuthor() {
+        return author;
     }
 
-    @Override
-    public String toString() {
-        return "Topic{" +
-                "title='" + title + '\'' +
-                ", targetURL=" + targetURL +
-                '}';
+    public String getTargetURL() {
+        return targetURL;
     }
 
     /**
@@ -71,6 +70,7 @@ public class Topic implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(title);
+        dest.writeString(author);
         dest.writeString(targetURL);
     }
 }
