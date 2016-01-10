@@ -2,60 +2,59 @@ package compenomatikus.httpsgithub.ois_admin;
 
 import android.Manifest;
 import android.app.Activity;
-import android.bluetooth.BluetoothDevice;
-import android.content.IntentFilter;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
-import java.net.URL;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import bluetoothmanager.BeaconManager;
-
 
 public class AdminFragment extends Fragment {
-    private static final int REQUEST_ENABLE_BT  = 1;
+
     private static final int REQUEST_ACCESS_COARSE_LOCATION = 0;
-    private BeaconManager receiver = null;
-    private int permissionCheck = 0;
-    public final static String className = "AdminFragment";
+    private final int APP_INFO_MENUITEM = 0;
+
+    private BLESniffer bleSniffer;
+    private Button uploadSharkButton;
+    private EditText altitude;
+    private EditText author;
+    private EditText content;
+    private EditText latidude;
+    private EditText longitude;
+    private EditText topic;
+    private Handler snifferHandler = new Handler(Looper.getMainLooper());
+    private ImageButton bleButton;
+    private boolean isListeing;
+    private List<String> uploadData;
+    protected final String TAG = this.getClass().getSimpleName();
+    private SharkUploader sharkUploader;
+
 
     private OnFragmentInteractionListener mListener;
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment AdminFragment.
-     */
-    public static AdminFragment newInstance(String param1, String param2) {
-        AdminFragment fragment = new AdminFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     public AdminFragment() {
         // Required empty public constructor
     }
-
- //--------------------------------------------------------------------------------------
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -63,38 +62,148 @@ public class AdminFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         View v =  inflater.inflate(R.layout.fragment_admin_fragment, container, false);
-        EditText latidude = ( EditText ) v.findViewById(R.id.latitude);
-        EditText longitude = ( EditText ) v.findViewById(R.id.longitude);
-        EditText altitude = ( EditText ) v.findViewById(R.id.altitude);
-        EditText topic = ( EditText ) v.findViewById(R.id.topic);
+        setHasOptionsMenu(true);
+        v.setFocusable(false);
+        latidude = ( EditText ) v.findViewById(R.id.latitude);
+        longitude = ( EditText ) v.findViewById(R.id.longitude);
+        altitude = ( EditText ) v.findViewById(R.id.altitude);
+        topic = ( EditText ) v.findViewById(R.id.topic);
         topic.requestFocus();
-        EditText author = ( EditText ) v.findViewById(R.id.author);
-        EditText content = ( EditText ) v.findViewById(R.id.content);
-        Button button = ( Button ) v.findViewById(R.id.middleButton);
-        button.setOnClickListener(new View.OnClickListener() {
+        author = ( EditText ) v.findViewById(R.id.author);
+        content = ( EditText ) v.findViewById(R.id.content);
+        uploadSharkButton = ( Button ) v.findViewById(R.id.middleButton);
+        isListeing = false;
+        uploadData = new ArrayList<>();
+        uploadSharkButton.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
-            public void onClick(View v) {
-                Toast.makeText(v.getContext(), "MAGIC", Toast.LENGTH_SHORT).show();
+            public void onFocusChange(View v, boolean hasFocus) {
+                boolean isNotEmpty = true;
+                if (TextUtils.isEmpty(topic.getText().toString())) {
+                    topic.setError("Geben Sie einen Inhalt ein.");
+                    isNotEmpty = false;
+                }
+                if (TextUtils.isEmpty(author.getText().toString())) {
+                    author.setError("Geben Sie einen Autor ein.");
+                    isNotEmpty = false;
+                }
+                if (TextUtils.isEmpty(content.getText().toString())) {
+                    content.setError("Geben Sie einen Titel ein.");
+                    isNotEmpty = false;
+                }
+                if (TextUtils.isEmpty(latidude.getText().toString())) {
+                    latidude.setError("Noch nichts gefunden");
+                    longitude.setError("Noch nichts gefunden");
+                    altitude.setError("Noch nichts gefunden");
+                    isNotEmpty = false;
+                }
+
+                if (isNotEmpty) {
+                    String sLatitude = latidude.getText().toString();
+                    String sLongitude = longitude.getText().toString();
+                    String sAltitude = altitude.getText().toString();
+                    uploadData.add(sLatitude + "," + sLongitude + "," + sAltitude);
+                    uploadData.add(topic.toString());
+                    uploadData.add(author.toString());
+                    uploadData.add(content.toString());
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle("Diese Informationen hochladen?");
+                    builder.setMessage("" +
+                            "Latitude: " + sLatitude + "\n" +
+                            "Longitude: " + sLongitude + "\n" +
+                            "Altitude: " + sAltitude + "\n" +
+                            "Thema: " + topic.getText().toString() + "\n" +
+                            "Autor: " + author.getText().toString() + "\n" +
+                            "Inhalt: " + content.getText().toString());
+                    builder.setPositiveButton("Hochladen", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            bleSniffer.stop();
+                            snifferHandler.removeCallbacks(bleSniffer);
+                            sharkUploader = new SharkUploader(uploadData);
+                            sharkUploader.execute();
+                        }
+                    });
+                    builder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+                    builder.show();
+
+                }
             }
         });
 
-
-        List<String> geos = readPropperGEO("https://24.197611,120.780512,4.197631");
-        latidude.setText(geos.get(0));
-        longitude.setText(geos.get(1));
-        altitude.setText(geos.get(2));
-
-        // Check if the app has rights to ACCESS_COARSE_LOCATION
-        permissionCheck = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION);
-        Log.i(className, permissionCheck + "");
-
-        if ( permissionCheck != PackageManager.PERMISSION_GRANTED ) {
-            String[] permissions = { Manifest.permission.ACCESS_CHECKIN_PROPERTIES };
-            ActivityCompat.requestPermissions(getActivity(), permissions, REQUEST_ACCESS_COARSE_LOCATION);
+        bleSniffer = new BLESniffer(getActivity(), latidude, longitude, altitude, bleButton);
+        bleButton = ( ImageButton ) v.findViewById(R.id.bluetooth_BTN);
+        bleButton.setImageResource(R.drawable.bluetooth_off);
+        if(getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            bleButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.e(TAG, "hhhhh");
+                    if (!isListeing) {
+                        //Checks the build version of the app, if lollipop or higher, use new permission model
+                        if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
+                            // Check if the app has rights to ACCESS_COARSE_LOCATION
+                            if (getActivity().checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+                                    != PackageManager.PERMISSION_GRANTED) {
+                                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                                        REQUEST_ACCESS_COARSE_LOCATION);
+                            } else {
+                                snifferHandler.post(bleSniffer);
+                                isListeing = true;
+                            }
+                        } else {
+                            snifferHandler.post(bleSniffer);
+                            isListeing = true;
+                        }
+                    } else {
+                        bleSniffer.stop();
+                        isListeing = false;
+                    }
+                }
+            });
+        } else {
+            latidude.setText("BLE");
+            longitude.setText("nicht");
+            altitude.setText("unterstützt");
         }
+
+        latidude.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                latidude.setError(null);
+            }
+            @Override
+            public void afterTextChanged(Editable s) {  }
+        });
+        longitude.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                longitude.setError(null);
+            }
+            @Override
+            public void afterTextChanged(Editable s) { }
+        });
+
+        altitude.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                altitude.setError(null);
+            }
+            @Override
+            public void afterTextChanged(Editable s) { }
+
+        });
         return v;
     }
 
@@ -118,15 +227,78 @@ public class AdminFragment extends Fragment {
     }
 
     @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.add(0, APP_INFO_MENUITEM, 0, "Informationen zur App");
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case APP_INFO_MENUITEM: {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("Infromationen");
+                builder.setMessage("" +
+                        "Dieser Bereich dient dazu, Geo-Informationen eines Beacons auszulesen " +
+                        "und zu diesen Informationen einen Eintrag in Shark zu hinterlegen. Der " +
+                        "Eintrag enthält:\n• Die Geo-Informationen\n• Ein Thema\n• Einen Autor\n" +
+                        "• Einen Inhalt\n");
+                builder.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+                builder.show();
+                return false;
+            }
+            default: break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public void onDestroyView() {
 
-        getContext().unregisterReceiver(receiver);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onStop() {
+        snifferHandler.removeCallbacks(bleSniffer);
+        super.onStop();
+    }
+
+    @Override
+    public void onStart() {
+        Log.w(TAG, "Is listening? " + isListeing);
+        bleSniffer = new BLESniffer(getActivity(), latidude, longitude, altitude, bleButton);
+        if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1)
+            if (getActivity().checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_ACCESS_COARSE_LOCATION);
+        super.onStart();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+         switch (requestCode) {
+            case REQUEST_ACCESS_COARSE_LOCATION: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    Log.i(TAG, "Permission garanted");
+                    snifferHandler.post(bleSniffer);
+                } else {
+                    Log.w(TAG, "Permission not garanted");
+                    latidude.setText("Keine");
+                    longitude.setText("Berechtigung");
+                    altitude.setText("erhalten");
+                }
+                return;
+            }
+        }
     }
 
     /**
@@ -143,31 +315,5 @@ public class AdminFragment extends Fragment {
         // TODO: Update argument type and name
         public void onFragmentInteraction(Uri uri);
     }
-
-
-    /* ####################### Functions ######################## */
-
-    private List<String> readPropperGEO(URL geoAsURL) {
-        String url = geoAsURL.toString();
-        Pattern pattern = Pattern.compile("\\d{1,3}\\.\\d*");
-        Matcher matcher = pattern.matcher(url);
-        return null;
-    }
-
-    private List<String> readPropperGEO(String geoAsString) {
-        String url = geoAsString.toString();
-        int matched = 0;
-        List<String> results = new ArrayList<String>();
-        Pattern pattern = Pattern.compile("\\d{1,3}\\.\\d*");
-        Matcher matcher = pattern.matcher(url);
-        Log.i("readPropperGEO(Str):", "START");
-        while ( matcher.find() ) {
-            Log.i("( " + matched++ + " ) Matched: ", matcher.group());
-            results.add(matcher.group());
-        }
-        Log.i("readPropperGeo(Str):", "END");
-        return results;
-    }
-
 
 }
