@@ -13,8 +13,8 @@ Die App scannt nach Broadcasts von umliegenden [BLE](https://en.wikipedia.org/wi
 * Longitude  
 * Altitude    
 
-Ansonsten wird ein Hinweis ausgegeben, dass es sich bei den gefundenen Informationen um keine Geo-Informationen handelt.  
-Des weiteren kann die App zwischen nahen und fernen [BLE](https://en.wikipedia.org/wiki/Bluetooth_low_energy) Geräten unterscheiden. Es werden immer nur die Informationen, des am nächsten liegenden [BLE](https://en.wikipedia.org/wiki/Bluetooth_low_energy) Gerätes angezeigt und verarbeitet.  
+Ansonsten wird ein Hinweis ausgegeben, dass es sich bei den gefundenen Informationen um keine Geo-Informationen handelt. Des weiteren kann die App zwischen nahen und fernen [BLE](https://en.wikipedia.org/wiki/Bluetooth_low_energy) Geräten unterscheiden. Es werden immer nur die Informationen, des am nächsten liegenden [BLE](https://en.wikipedia.org/wiki/Bluetooth_low_energy) Gerätes angezeigt und verarbeitet.  
+Generell wird auch die verwendete Android-Version erkannt, auf der die Adminapp(Fragment) läuft und auf entsprechende Versionsunterschiede im Bereich Scanning und Berechtigungen Rücksicht genommen. 
 
 ## Berechtigungen
 Die App verwendet folgende Berechtigungen:  
