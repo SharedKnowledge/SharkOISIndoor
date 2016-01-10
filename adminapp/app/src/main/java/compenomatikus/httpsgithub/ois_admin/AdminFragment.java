@@ -3,8 +3,11 @@ package compenomatikus.httpsgithub.ois_admin;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -26,6 +29,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,12 +81,14 @@ public class AdminFragment extends Fragment {
         uploadSharkButton = ( Button ) v.findViewById(R.id.middleButton);
         isListeing = false;
         uploadData = new ArrayList<>();
+        bleButton = ( ImageButton ) v.findViewById(R.id.bluetooth_BTN);
+        bleSniffer = new BLESniffer(getActivity(), latidude, longitude, altitude, bleButton);
         uploadSharkButton.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 boolean isNotEmpty = true;
                 if (TextUtils.isEmpty(topic.getText().toString())) {
-                    topic.setError("Geben Sie einen Inhalt ein.");
+                    topic.setError("Geben Sie einen Titel ein.");
                     isNotEmpty = false;
                 }
                 if (TextUtils.isEmpty(author.getText().toString())) {
@@ -89,7 +96,7 @@ public class AdminFragment extends Fragment {
                     isNotEmpty = false;
                 }
                 if (TextUtils.isEmpty(content.getText().toString())) {
-                    content.setError("Geben Sie einen Titel ein.");
+                    content.setError("Geben Sie einen Inhalt ein.");
                     isNotEmpty = false;
                 }
                 if (TextUtils.isEmpty(latidude.getText().toString())) {
@@ -118,10 +125,12 @@ public class AdminFragment extends Fragment {
                             "Inhalt: " + content.getText().toString());
                     builder.setPositiveButton("Hochladen", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            bleSniffer.stop();
-                            snifferHandler.removeCallbacks(bleSniffer);
-                            sharkUploader = new SharkUploader(uploadData);
-                            sharkUploader.execute();
+                            if ( isNetworkConnected() ) {
+                                bleSniffer.stop();
+                                snifferHandler.removeCallbacks(bleSniffer);
+                                sharkUploader = new SharkUploader(uploadData);
+                                sharkUploader.execute();
+                            }
                         }
                     });
                     builder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
@@ -136,14 +145,13 @@ public class AdminFragment extends Fragment {
             }
         });
 
-        bleSniffer = new BLESniffer(getActivity(), latidude, longitude, altitude, bleButton);
-        bleButton = ( ImageButton ) v.findViewById(R.id.bluetooth_BTN);
+       // bleSniffer = new BLESniffer(getActivity(), latidude, longitude, altitude, bleButton);
+
         bleButton.setImageResource(R.drawable.bluetooth_off);
         if(getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             bleButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.e(TAG, "hhhhh");
                     if (!isListeing) {
                         //Checks the build version of the app, if lollipop or higher, use new permission model
                         if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
@@ -207,6 +215,34 @@ public class AdminFragment extends Fragment {
         return v;
     }
 
+    private boolean isNetworkConnected() {
+        boolean isConnected = true;
+        ConnectivityManager connectivityManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager.getActiveNetworkInfo() != null) {
+            if (connectivityManager.getActiveNetworkInfo().isConnected())
+                isConnected = true;
+        }
+        else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("Keine Internet Verbindung");
+            builder.setMessage("Bitte stelle sicher, dass du mit dem Internet verbunden bist.");
+            builder.setPositiveButton("Einstellungen öffnen", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    getActivity().startActivityForResult(new Intent(android.provider.Settings.ACTION_SETTINGS), 0);
+                }
+            });
+            builder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+            builder.show();
+            isConnected = false;
+        }
+        return isConnected;
+    }
+
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
@@ -258,7 +294,7 @@ public class AdminFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
-
+        super.onDestroyView();
     }
 
     @Override
@@ -269,17 +305,32 @@ public class AdminFragment extends Fragment {
 
     @Override
     public void onStop() {
+        bleSniffer.stop();
         snifferHandler.removeCallbacks(bleSniffer);
         super.onStop();
     }
 
     @Override
     public void onStart() {
-        Log.w(TAG, "Is listening? " + isListeing);
-        bleSniffer = new BLESniffer(getActivity(), latidude, longitude, altitude, bleButton);
-        if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1)
-            if (getActivity().checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_ACCESS_COARSE_LOCATION);
+        if ( isListeing ) {
+            if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
+                if (getActivity().checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_ACCESS_COARSE_LOCATION);
+                } else {
+                    Log.w(TAG, "Continue scan");
+                    bleButton.setImageResource(R.drawable.bluetooth_on);
+                    snifferHandler.post(bleSniffer);
+                }
+            } else {
+                Log.w(TAG, "Continue scan");
+                bleButton.setImageResource(R.drawable.bluetooth_on);
+                snifferHandler.post(bleSniffer);
+            }
+        } else {
+            Log.w(TAG, "No previous sans.");
+                    bleButton.setImageResource(R.drawable.bluetooth_off);
+            // do not continue sniffing
+        }
         super.onStart();
     }
 

@@ -86,7 +86,8 @@
         android:textAlignment="center"
         android:height="100dp"
         android:layout_centerHorizontal="true"
-        android:hint="@string/content_TXT" />
+        android:hint="@string/content_TXT"
+        android:layout_below="@+id/author" />
 
     <ImageButton
         android:id="@+id/bluetooth_BTN"
