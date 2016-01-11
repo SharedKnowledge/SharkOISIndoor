@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -27,10 +28,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Toast;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +37,6 @@ public class AdminFragment extends Fragment {
     private final int APP_INFO_MENUITEM = 0;
 
     private BLESniffer bleSniffer;
-    private Button uploadSharkButton;
     private EditText altitude;
     private EditText author;
     private EditText content;
@@ -78,74 +74,29 @@ public class AdminFragment extends Fragment {
         topic.requestFocus();
         author = ( EditText ) v.findViewById(R.id.author);
         content = ( EditText ) v.findViewById(R.id.content);
-        uploadSharkButton = ( Button ) v.findViewById(R.id.middleButton);
+        final Button uploadSharkButton = (Button) v.findViewById(R.id.middleButton);
         isListeing = false;
         uploadData = new ArrayList<>();
         bleButton = ( ImageButton ) v.findViewById(R.id.bluetooth_BTN);
         bleSniffer = new BLESniffer(getActivity(), latidude, longitude, altitude, bleButton);
+
+        // Avoid onclickListener not working because the view is first tapped and you need to double tap the button
         uploadSharkButton.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                boolean isNotEmpty = true;
-                if (TextUtils.isEmpty(topic.getText().toString())) {
-                    topic.setError("Geben Sie einen Titel ein.");
-                    isNotEmpty = false;
-                }
-                if (TextUtils.isEmpty(author.getText().toString())) {
-                    author.setError("Geben Sie einen Autor ein.");
-                    isNotEmpty = false;
-                }
-                if (TextUtils.isEmpty(content.getText().toString())) {
-                    content.setError("Geben Sie einen Inhalt ein.");
-                    isNotEmpty = false;
-                }
-                if (TextUtils.isEmpty(latidude.getText().toString())) {
-                    latidude.setError("Noch nichts gefunden");
-                    longitude.setError("Noch nichts gefunden");
-                    altitude.setError("Noch nichts gefunden");
-                    isNotEmpty = false;
-                }
-
-                if (isNotEmpty) {
-                    String sLatitude = latidude.getText().toString();
-                    String sLongitude = longitude.getText().toString();
-                    String sAltitude = altitude.getText().toString();
-                    uploadData.add(sLatitude + "," + sLongitude + "," + sAltitude);
-                    uploadData.add(topic.toString());
-                    uploadData.add(author.toString());
-                    uploadData.add(content.toString());
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setTitle("Diese Informationen hochladen?");
-                    builder.setMessage("" +
-                            "Latitude: " + sLatitude + "\n" +
-                            "Longitude: " + sLongitude + "\n" +
-                            "Altitude: " + sAltitude + "\n" +
-                            "Thema: " + topic.getText().toString() + "\n" +
-                            "Autor: " + author.getText().toString() + "\n" +
-                            "Inhalt: " + content.getText().toString());
-                    builder.setPositiveButton("Hochladen", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            if ( isNetworkConnected() ) {
-                                bleSniffer.stop();
-                                snifferHandler.removeCallbacks(bleSniffer);
-                                sharkUploader = new SharkUploader(uploadData);
-                                sharkUploader.execute();
-                            }
-                        }
-                    });
-                    builder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    });
-                    builder.show();
-
-                }
+                if(hasFocus)
+                    showSharkUploadInfo();
             }
         });
 
-       // bleSniffer = new BLESniffer(getActivity(), latidude, longitude, altitude, bleButton);
+        // Avoid onFocusChangeListener no recognition after uploadSharkButton lost focus
+        uploadSharkButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showSharkUploadInfo();
+            }
+        });
+
 
         bleButton.setImageResource(R.drawable.bluetooth_off);
         if(getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
@@ -175,9 +126,9 @@ public class AdminFragment extends Fragment {
                 }
             });
         } else {
-            latidude.setText("BLE");
-            longitude.setText("nicht");
-            altitude.setText("unterstützt");
+            latidude.setText(getResources().getString(R.string.ble_not_found_1));
+            longitude.setText(getResources().getString(R.string.ble_not_found_2));
+            altitude.setText(getResources().getString(R.string.ble_not_found_3));
         }
 
         latidude.addTextChangedListener(new TextWatcher() {
@@ -215,6 +166,64 @@ public class AdminFragment extends Fragment {
         return v;
     }
 
+    private void showSharkUploadInfo(){
+        boolean isNotEmpty = true;
+        if (TextUtils.isEmpty(topic.getText().toString())) {
+            topic.setError(getResources().getString(R.string.topic_err));
+            isNotEmpty = false;
+        }
+        if (TextUtils.isEmpty(author.getText().toString())) {
+            author.setError(getResources().getString(R.string.author_err));
+            isNotEmpty = false;
+        }
+        if (TextUtils.isEmpty(content.getText().toString())) {
+            content.setError(getResources().getString(R.string.content_err));
+            isNotEmpty = false;
+        }
+        if (TextUtils.isEmpty(latidude.getText().toString())) {
+            latidude.setError(getResources().getString(R.string.geo_err));
+            longitude.setError(getResources().getString(R.string.geo_err ));
+            altitude.setError(getResources().getString(R.string.geo_err));
+            isNotEmpty = false;
+        }
+
+        if (isNotEmpty) {
+            String sLatitude = latidude.getText().toString();
+            String sLongitude = longitude.getText().toString();
+            String sAltitude = altitude.getText().toString();
+            uploadData.add(sLatitude + "," + sLongitude + "," + sAltitude);
+            uploadData.add(topic.toString());
+            uploadData.add(author.toString());
+            uploadData.add(content.toString());
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.uploud_information);
+            builder.setMessage("" +
+                    getResources().getString(R.string.latitude_TXT) + ": " + sLatitude + "\n" +
+                    getResources().getString(R.string.longitude_TXT) + ": " + sLongitude + "\n" +
+                    getResources().getString(R.string.altitude_TXT) + ": " + sAltitude + "\n" +
+                    getResources().getString(R.string.topic_TXT) + ": " + topic.getText().toString() + "\n" +
+                    getResources().getString(R.string.author_TXT) + ": " + author.getText().toString() + "\n" +
+                    getResources().getString(R.string.content_TXT) + ": " + content.getText().toString());
+            builder.setPositiveButton(R.string.upload, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    if (isNetworkConnected()) {
+                        bleSniffer.stop();
+                        snifferHandler.removeCallbacks(bleSniffer);
+                        sharkUploader = new SharkUploader(uploadData);
+                        sharkUploader.execute();
+                    }
+                }
+            });
+            builder.setNegativeButton(R.string.abort, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+            builder.show();
+        }
+    }
+
     private boolean isNetworkConnected() {
         boolean isConnected = true;
         ConnectivityManager connectivityManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -224,14 +233,14 @@ public class AdminFragment extends Fragment {
         }
         else {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle("Keine Internet Verbindung");
-            builder.setMessage("Bitte stelle sicher, dass du mit dem Internet verbunden bist.");
-            builder.setPositiveButton("Einstellungen öffnen", new DialogInterface.OnClickListener() {
+            builder.setTitle(R.string.no_internet_con);
+            builder.setMessage(R.string.no_internet_con_hint);
+            builder.setPositiveButton(R.string.no_internet_con_open_pref, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     getActivity().startActivityForResult(new Intent(android.provider.Settings.ACTION_SETTINGS), 0);
                 }
             });
-            builder.setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+            builder.setNegativeButton(R.string.abort, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.cancel();
@@ -243,7 +252,6 @@ public class AdminFragment extends Fragment {
         return isConnected;
     }
 
-
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
@@ -251,6 +259,7 @@ public class AdminFragment extends Fragment {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -264,7 +273,7 @@ public class AdminFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        menu.add(0, APP_INFO_MENUITEM, 0, "Informationen zur App");
+        menu.add(0, APP_INFO_MENUITEM, 0, R.string.information);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -273,12 +282,8 @@ public class AdminFragment extends Fragment {
         switch (item.getItemId()){
             case APP_INFO_MENUITEM: {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle("Infromationen");
-                builder.setMessage("" +
-                        "Dieser Bereich dient dazu, Geo-Informationen eines Beacons auszulesen " +
-                        "und zu diesen Informationen einen Eintrag in Shark zu hinterlegen. Der " +
-                        "Eintrag enthält:\n• Die Geo-Informationen\n• Ein Thema\n• Einen Autor\n" +
-                        "• Einen Inhalt\n");
+                builder.setTitle(R.string.information);
+                builder.setMessage(R.string.information_content);
                 builder.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
@@ -335,7 +340,7 @@ public class AdminFragment extends Fragment {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode,@NonNull String[] permissions,@NonNull int[] grantResults) {
          switch (requestCode) {
             case REQUEST_ACCESS_COARSE_LOCATION: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
@@ -343,11 +348,10 @@ public class AdminFragment extends Fragment {
                     snifferHandler.post(bleSniffer);
                 } else {
                     Log.w(TAG, "Permission not garanted");
-                    latidude.setText("Keine");
-                    longitude.setText("Berechtigung");
-                    altitude.setText("erhalten");
+                    latidude.setText(R.string.no_permissions_granted_1);
+                    longitude.setText(R.string.no_permissions_granted_2);
+                    altitude.setText(R.string.no_permissions_granted_3);
                 }
-                return;
             }
         }
     }

@@ -118,13 +118,13 @@ public class BLESniffer implements Runnable {
 
     /*
      *  Will start the scan for ble-devices if Bluetooth and the location service of the mobile are
-     *  enabled. If one of them is not enabled, it will call enableBluetooth() and  enableLocation().
+     *  enabled. If one of them is not enabled, it will call enableBluetooth() [and  enableLocation().]
      */
     @Override
     public void run() {
         if((locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && bluetoothAdapter.isEnabled())) {
             Log.i(TAG, "Starting beacon-scan.");
-            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
                 bluetoothAdapter.getBluetoothLeScanner().startScan(scanCallback);
                 bleButton.setImageResource(R.drawable.bluetooth_on);
             } else {
@@ -133,8 +133,9 @@ public class BLESniffer implements Runnable {
                 bleButton.setImageResource(R.drawable.bluetooth_on);
             }
         } else {
+            if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1)
+                enableLocation();
             enableBluetooth();
-            enableLocation();
         }
     }
 
@@ -154,7 +155,7 @@ public class BLESniffer implements Runnable {
                 @Override
                 public void onScanResult(int callbackType, ScanResult result) {
                     String beaconContent = "";
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
                         if (checkRange(result.getRssi())) {
                             //noinspection ConstantConditions
                             Log.i(TAG, "Found: " + result.getScanRecord().getDeviceName());
@@ -240,7 +241,7 @@ public class BLESniffer implements Runnable {
      */
     public void stop(){
         Log.w(TAG, "Stopped ble-scan");
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+        if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
             bluetoothAdapter.getBluetoothLeScanner().stopScan(scanCallback);
             bleButton.setImageResource(R.drawable.bluetooth_off);
         } else {
@@ -264,19 +265,18 @@ public class BLESniffer implements Runnable {
         } else {
             Log.w(TAG, "Bluetooth not enabled. Can't scan for beacons. Print AlertDialog.");
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
-            alertDialogBuilder.setMessage("¯\\_(ツ)_/¯ \n\nBluetooth ist leider nicht aktiviert.\n" +
-                    "Wir können keine Beacons für dich finden.")
+            alertDialogBuilder.setTitle("¯\\_(ツ)_/¯");
+            alertDialogBuilder.setMessage(R.string.bluetooth_not_enabled)
                     .setCancelable(false)
-                    .setPositiveButton("Bluetooth sicher aktivieren",
-                            new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.bluetooth_safe_enable, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
                                     Intent enable = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                                     activity.startActivityForResult(enable, REQUEST_ENABLE_BT);
                                 }
                             });
-            alertDialogBuilder.setNegativeButton("Abbrechen",
-                    new DialogInterface.OnClickListener(){
+            alertDialogBuilder.setNegativeButton(R.string.abort, new DialogInterface.OnClickListener(){
                         public void onClick(DialogInterface dialog, int id){
+                            bleButton.setImageResource(R.drawable.bluetooth_off);
                             dialog.cancel();
                         }
                     });
@@ -299,18 +299,18 @@ public class BLESniffer implements Runnable {
         } else {
             Log.w(TAG, "GPS is not enabled. Can't scan for beacons");
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
-            alertDialogBuilder.setMessage("¯\\_(ツ)_/¯ \n\nGPS ist leider nicht aktiviert. Ab Android Marshmellow, benötigen wir " +
-                    "es um die BLE-Beacons zu finden. Bitte aktiviere dein GPS.")
+            alertDialogBuilder.setTitle("¯\\_(ツ)_/¯");
+            alertDialogBuilder.setMessage(R.string.location_enable)
                     .setCancelable(false)
-                    .setPositiveButton("Öffne Ortungseinstellungen",
-                            new DialogInterface.OnClickListener(){
-                                public void onClick(DialogInterface dialog, int id){
+                    .setPositiveButton(R.string.open_location_settings, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
                                     activity.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
                                 }
                             });
-            alertDialogBuilder.setNegativeButton("Abbrechen",
+            alertDialogBuilder.setNegativeButton(R.string.abort,
                     new DialogInterface.OnClickListener(){
                         public void onClick(DialogInterface dialog, int id){
+                            bleButton.setImageResource(R.drawable.bluetooth_off);
                             dialog.cancel();
                         }
                     });
@@ -347,7 +347,8 @@ public class BLESniffer implements Runnable {
         if ( matched == 3 )
             return results;
         else {
-            return new ArrayList<String>(){{ add("Keine"); add("korrekten"); add("Geos"); }};
+            return new ArrayList<String>(){{ add(R.string.no_propper_geos_1 + "");
+                add(R.string.no_propper_geos_2 + ""); add(R.string.no_propper_geos_3 + ""); }};
         }
     }
 }
