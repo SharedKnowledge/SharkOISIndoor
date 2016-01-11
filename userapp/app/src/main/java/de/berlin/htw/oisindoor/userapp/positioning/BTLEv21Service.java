@@ -1,23 +1,14 @@
 package de.berlin.htw.oisindoor.userapp.positioning;
 
 import android.annotation.TargetApi;
-import android.app.Service;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
-import android.os.IBinder;
 import android.os.ParcelUuid;
-import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,15 +23,15 @@ public class BTLEv21Service extends BTLEService {
     private ScanCallback scanCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) { // 78:A5:04:4A:58:0F und
-            Log.d(TAG, "onScanResult: " + result.toString());
-            Log.d(TAG, "onScanResult: " + result.getScanRecord());
-
+            Log.d(TAG, "onScanResult1: " + result.getDevice().getName() + " " + result.getDevice().getAddress());
             Map<ParcelUuid, byte[]> t = result.getScanRecord().getServiceData();
+
             for (ParcelUuid i : t.keySet()) {
                 String beaconContent = new String(t.get(i), UTF8).trim();
-                Log.d(TAG, i.getUuid() + " " + beaconContent);
+                Log.d(TAG, "getServiceData: " + i.getUuid() + " " + t.get(i) + " (" + beaconContent + ")");
                 sendLocationToActivity(beaconContent);
             }
+            stop();
         }
 
         @Override
@@ -58,37 +49,21 @@ public class BTLEv21Service extends BTLEService {
     };
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        int action = intent.getIntExtra(ACTION, -1);
-        Log.d(TAG, "onStartCommand: " + action);
-        switch (action) {
-            case ACTION_START:
-                if (!bluetoothAdapter.isEnabled()) {
-                    Log.d(TAG, "Bluetooth is disabled");
-                    stopSelf();
-                    break;
-                }
-                stopScanning();
-                Log.d(TAG, "startSearching");
-                List<ScanFilter> l = new ArrayList<>();
-                l.add(new ScanFilter.Builder().setDeviceAddress("78:A5:04:4A:58:0F").build());
-                l.add(new ScanFilter.Builder().setDeviceAddress("78:A5:04:4A:28:88").build());
-                bluetoothAdapter.getBluetoothLeScanner().startScan(l, new ScanSettings.Builder().build(), scanCallback);
-                break;
-
-            case ACTION_STOP:
-                stopScanning();
-                stopSelf();
-                break;
-
-            default:
-                stopScanning();
-                stopSelf();
-                break;
+    void startScanning() {
+        if (!bluetoothAdapter.isEnabled()) {
+            Log.d(TAG, "Bluetooth is disabled");
+            stopSelf();
+            return;
         }
-        return START_NOT_STICKY;
+        stopScanning();
+        Log.d(TAG, "startSearching");
+        List<ScanFilter> l = new ArrayList<>();
+        l.add(new ScanFilter.Builder().setDeviceAddress("78:A5:04:4A:58:0F").build());
+        l.add(new ScanFilter.Builder().setDeviceAddress("78:A5:04:4A:28:88").build());
+        bluetoothAdapter.getBluetoothLeScanner().startScan(l, new ScanSettings.Builder().build(), scanCallback);
     }
 
+    @Override
     void stopScanning() {
         Log.d(TAG, "stopScanning");
         if (bluetoothAdapter != null && bluetoothAdapter.getBluetoothLeScanner() != null) {

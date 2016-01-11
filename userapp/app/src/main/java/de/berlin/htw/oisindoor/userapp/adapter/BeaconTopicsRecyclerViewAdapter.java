@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
@@ -21,9 +22,20 @@ public class BeaconTopicsRecyclerViewAdapter extends RecyclerView.Adapter<Beacon
     private final List<Topic> data;
     private final PositioningFragment.TopicListener callback;
 
+    public BeaconTopicsRecyclerViewAdapter(PositioningFragment.TopicListener callback) {
+        this.data = new ArrayList<>();
+        this.callback = callback;
+    }
+
     public BeaconTopicsRecyclerViewAdapter(List<Topic> data, PositioningFragment.TopicListener callback) {
         this.data = data;
         this.callback = callback;
+    }
+
+    public void updateItems(List<Topic> topicList){
+        this.data.clear();
+        this.data.addAll(topicList);
+        notifyDataSetChanged();
     }
 
     @Override

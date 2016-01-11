@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import java.nio.charset.Charset;
 
@@ -37,6 +38,7 @@ public abstract class BTLEService extends Service {
         context.startService(stopIntent);
     }
 
+    private static final String TAG = BTLEService.class.getSimpleName();
     static final String ACTION = "btleAction";
     static final int ACTION_START = 78;
     static final int ACTION_STOP = 79;
@@ -46,8 +48,7 @@ public abstract class BTLEService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        bluetoothAdapter = bluetoothManager.getAdapter();
+        bluetoothAdapter = ((BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE)).getAdapter();
     }
 
     @Nullable
@@ -57,9 +58,33 @@ public abstract class BTLEService extends Service {
     }
 
     @Override
-    public abstract int onStartCommand(Intent intent, int flags, int startId);
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        int action = intent.getIntExtra(ACTION, -1);
+        Log.d(TAG, "onStartCommand: " + action);
+        switch (action) {
+            case ACTION_START:
+                startScanning();
+                break;
+
+            case ACTION_STOP:
+                stop();
+                break;
+
+            default:
+                stop();
+                break;
+        }
+        return START_NOT_STICKY;
+    }
+
+    abstract void startScanning();
 
     abstract void stopScanning();
+
+    void stop() {
+        stopScanning();
+        stopSelf();
+    }
 
     void sendLocationToActivity(String url){
         Intent i = new Intent(RESPONSE_LOCATION);

@@ -52,12 +52,14 @@ public class PositioningFragment extends Fragment implements IPositioning {
      * so add a pending flag
      */
     private boolean isDialogPending = false;
+    private BeaconTopicsRecyclerViewAdapter adapter;
 
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
     public PositioningFragment() {}
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 
     @Nullable
     @Override
@@ -66,17 +68,19 @@ public class PositioningFragment extends Fragment implements IPositioning {
         View v = inflater.inflate(R.layout.f_positioning, container, false);
         ButterKnife.bind(this, v);
 
-        RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.f_positioning_rv);
-        recyclerView.setLayoutManager(new LinearLayoutManager(v.getContext()));
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setNestedScrollingEnabled(true);
-        recyclerView.setAdapter(new BeaconTopicsRecyclerViewAdapter(Topic.ITEMS, new TopicListener() {
+        adapter = new BeaconTopicsRecyclerViewAdapter(new ArrayList<Topic>(), new TopicListener() {
             @Override
             public void onTopicClicked(@NonNull Topic t) {
                 Log.d(TAG, "onTopicClicked: " + t);
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(t.getTargetURL())));
             }
-        }));
+        });
+
+        RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.f_positioning_rv);
+        recyclerView.setLayoutManager(new LinearLayoutManager(v.getContext()));
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setNestedScrollingEnabled(true);
+        recyclerView.setAdapter(adapter);
         return v;
     }
 
@@ -110,14 +114,17 @@ public class PositioningFragment extends Fragment implements IPositioning {
 
     public void updatePosition(@NonNull String url){
         Log.d(TAG, "updatePosition " + url);
-        if (dialog != null) {
-            dialog.dismiss();
-        }
         //url = url.substring(2); // FIXME: Coding and co problems
         List<String> t = readPropperGEO(url);
         latText.setText(t.get(0));
         lonText.setText(t.get(1));
         altText.setText(t.get(2));
+    }
+
+    @Override
+    public void updateTopics(List<Topic> topicList) {
+        cancelSearchingDialog();
+        adapter.updateItems(topicList);
     }
 
     /*

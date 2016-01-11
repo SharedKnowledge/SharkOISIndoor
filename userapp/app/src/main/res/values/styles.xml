@@ -6,7 +6,6 @@
         <item name="cardElevation">4dp</item>
         <item name="cardUseCompatPadding">true</item>
         <item name="contentPadding">4dp</item>
-        <item name="android:clickable">true</item>
         <item name="android:foreground">?android:selectableItemBackground</item>
     </style>
 

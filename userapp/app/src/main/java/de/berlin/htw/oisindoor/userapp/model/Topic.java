@@ -16,6 +16,10 @@ public class Topic implements Parcelable {
     static {
         ITEMS.add(new Topic("Raumbelegung", "User1", "https://lsf.htw-berlin.de/qisserver/rds?state=wplan&act=Raum&pool=Raum&show=plan&P.subc=plan&raum.rgid=4343"));
         ITEMS.add(new Topic("Prof Website", "User2", "https://people.f4.htw-berlin.de/lehrende/schwotzer/lehrveranstaltungen/mobile-informationssysteme.html"));
+        ITEMS.add(new Topic("Raumbelegung2", "User1", "https://lsf.htw-berlin.de/qisserver/rds?state=wplan&act=Raum&pool=Raum&show=plan&P.subc=plan&raum.rgid=4344"));
+        ITEMS.add(new Topic("Prof Website2", "User2", "https://people.f4.htw-berlin.de/lehrende/schwotzer/lehrveranstaltungen/mobile-informationssysteme.html"));
+        ITEMS.add(new Topic("Raumbelegung3", "User1", "https://lsf.htw-berlin.de/qisserver/rds?state=wplan&act=Raum&pool=Raum&show=plan&P.subc=plan&raum.rgid=4344"));
+        ITEMS.add(new Topic("Prof Website3", "User2", "https://people.f4.htw-berlin.de/lehrende/schwotzer/lehrveranstaltungen/mobile-informationssysteme.html"));
     }
 
     private String title;
@@ -46,6 +50,11 @@ public class Topic implements Parcelable {
         return targetURL;
     }
 
+    @Override
+    public String toString() {
+        return title;
+    }
+
     /**
      * @link {Parcelable}
      */
@@ -73,4 +82,5 @@ public class Topic implements Parcelable {
         dest.writeString(author);
         dest.writeString(targetURL);
     }
+
 }
