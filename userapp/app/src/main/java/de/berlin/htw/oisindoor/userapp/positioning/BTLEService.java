@@ -13,7 +13,7 @@ import android.util.Log;
 
 import java.nio.charset.Charset;
 
-import de.berlin.htw.oisindoor.userapp.util.PermissionUtil;
+import de.berlin.htw.oisindoor.userapp.util.Util;
 
 /**
  * Created by Max on 19.12.2015.
@@ -25,14 +25,14 @@ public abstract class BTLEService extends Service {
     public static final String RESPONSE_ERROR_VALUE = "de.berlin.htw.oisindoor.userapp.positioning.error_value";
 
     public static void startService(Context context) {
-        Class clazz = PermissionUtil.isLollipop() ? BTLEv21Service.class : BTLEv19Service.class;
+        Class clazz = Util.isLollipop() ? BTLEv21Service.class : BTLEv18Service.class;
         Intent startIntent = new Intent(context, clazz);
         startIntent.putExtra(ACTION, ACTION_START);
         context.startService(startIntent);
     }
 
     public static void stopService(Context context){
-        Class clazz = PermissionUtil.isLollipop() ? BTLEv21Service.class : BTLEv19Service.class;
+        Class clazz = Util.isLollipop() ? BTLEv21Service.class : BTLEv18Service.class;
         Intent stopIntent = new Intent(context, clazz);
         stopIntent.putExtra(ACTION, ACTION_STOP);
         context.startService(stopIntent);

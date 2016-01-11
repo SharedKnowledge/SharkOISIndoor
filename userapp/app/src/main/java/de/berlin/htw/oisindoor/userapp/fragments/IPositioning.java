@@ -11,10 +11,6 @@ import de.berlin.htw.oisindoor.userapp.model.Topic;
  */
 public interface IPositioning {
 
-    void showSearchingDialog();
-
-    void cancelSearchingDialog();
-
     void updatePosition(@NonNull String url);
 
     void updateTopics(List<Topic> topicList);

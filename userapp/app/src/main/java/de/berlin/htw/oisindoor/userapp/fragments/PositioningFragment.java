@@ -1,7 +1,5 @@
 package de.berlin.htw.oisindoor.userapp.fragments;
 
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -45,13 +43,6 @@ public class PositioningFragment extends Fragment implements IPositioning {
     @Bind(R.id.f_positioning_lat) TextView latText;
     @Bind(R.id.f_positioning_lon) TextView lonText;
     @Bind(R.id.f_positioning_alt) TextView altText;
-    private ProgressDialog dialog;
-    /**
-     * Workaround because the activity is faster then the fragment instantiation when bluetooth is already enabled,
-     * i.e. not ready to show a dialog
-     * so add a pending flag
-     */
-    private boolean isDialogPending = false;
     private BeaconTopicsRecyclerViewAdapter adapter;
 
     public PositioningFragment() {}
@@ -84,33 +75,7 @@ public class PositioningFragment extends Fragment implements IPositioning {
         return v;
     }
 
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        if (isDialogPending) {
-            showSearchingDialog();
-        }
-    }
-
-    /*
-     * IPositioning
-     */
-
-    public void showSearchingDialog() {
-        if (isAdded()) {
-            isDialogPending = false;
-            showDialog();
-        } else {
-            isDialogPending = true;
-        }
-    }
-
-    @Override
-    public void cancelSearchingDialog() {
-        if (dialog != null) {
-            dialog.dismiss();
-        }
-    }
+    /* IPositioning */
 
     public void updatePosition(@NonNull String url){
         Log.d(TAG, "updatePosition " + url);
@@ -123,30 +88,10 @@ public class PositioningFragment extends Fragment implements IPositioning {
 
     @Override
     public void updateTopics(List<Topic> topicList) {
-        cancelSearchingDialog();
         adapter.updateItems(topicList);
     }
 
-    /*
-     * Stuff
-     */
-
-    private void showDialog() {
-        dialog = new ProgressDialog(getActivity());
-        dialog.setIcon(R.mipmap.perm_group_bluetooth);
-        dialog.setTitle(R.string.bt_searchForBeacons);
-        dialog.setCancelable(true);
-        dialog.setCanceledOnTouchOutside(false);
-        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        dialog.setIndeterminate(true);
-        dialog.show();
-    }
+    /* Stuff */
 
     // thx to Stefan J.
     private List<String> readPropperGEO(String geoAsString) {

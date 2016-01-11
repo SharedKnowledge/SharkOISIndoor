@@ -2,8 +2,8 @@ package de.berlin.htw.oisindoor.userapp;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,10 +14,9 @@ import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.BaseColumns;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
-import android.support.annotation.StringRes;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -52,11 +51,17 @@ import de.berlin.htw.oisindoor.userapp.fragments.PositioningFragment;
 import de.berlin.htw.oisindoor.userapp.model.GeoCoordinate;
 import de.berlin.htw.oisindoor.userapp.model.Topic;
 import de.berlin.htw.oisindoor.userapp.positioning.BTLEService;
+import de.berlin.htw.oisindoor.userapp.util.Util;
 
 public class TabbedActivity extends AppCompatActivity implements NoteFragment.OnListFragmentInteractionListener {
     private static final String TAG = TabbedActivity.class.getSimpleName();
-    private static final int ACTION_REQUEST_BT = 789;
+    private static final int REQUEST_IS_BLUETOOTH_ENABLED = 788;
+    private static final int REQUEST_IS_LOCATION_ENABLED = 789;
+    private static final int REQUEST_IS_NETWORK_ENABLED = 780;
+
+    private boolean isSearching = false;
     private boolean hasBeaconFound = false;
+    private ProgressDialog dialog;
     private BTLEReceiver btleReceiver;
     private IntentFilter filter;
     private LocalBroadcastManager localBroadcastManager;
@@ -66,12 +71,18 @@ public class TabbedActivity extends AppCompatActivity implements NoteFragment.On
     @Bind(R.id.ac_tabbed_vp) ViewPager viewPager;
     @Bind(R.id.ac_tabbed_main_content) View content;
 
+    // handle Permissions
+    private boolean hasNecessaryPermissions;
+    private boolean isLocationEnabled;
+    private boolean isBluetoothEnabled;
+    private boolean isNetworkAvailable;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.ac_tabbed);
         ButterKnife.bind(this);
-        Dexter.initialize(getApplicationContext());
+        Dexter.initialize(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.ac_tabbed_toolbar);
         setSupportActionBar(toolbar);
@@ -121,80 +132,32 @@ public class TabbedActivity extends AppCompatActivity implements NoteFragment.On
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode){
-            case ACTION_REQUEST_BT:
-                if (resultCode == RESULT_OK) { // is enabled now
-                    startSearchingForBeacons();
-                } else {
-                    showUIMessage(R.string.bt_permission_enable_text);
+            case REQUEST_IS_BLUETOOTH_ENABLED:
+                isBluetoothEnabled = (resultCode == RESULT_OK);
+                if (!isBluetoothEnabled) {
+                    Util.showUIMessage(content, R.string.enable_requirements);
                 }
+                startSearching();
                 break;
+
+            case REQUEST_IS_LOCATION_ENABLED:
+                isLocationEnabled = Util.isLocationProviderEnabled(this);
+                if (!isLocationEnabled) {
+                    Util.showUIMessage(content, R.string.enable_requirements);
+                }
+                startSearching();
+                break;
+
+            case REQUEST_IS_NETWORK_ENABLED:
+                isNetworkAvailable = Util.isInternetAvailable(this);
+                if (!isNetworkAvailable) {
+                    Util.showUIMessage(content, R.string.enable_requirements);
+                }
+                startSearching();
+                break;
+
             default:
                 Log.w(TAG, "unknown Action: " + requestCode + " " + resultCode + " " + data);
-        }
-    }
-
-    private void startSearching() {
-        if (checkBTPermission()){
-            checkBTisActive();
-        }
-    }
-
-    private boolean checkBTPermission() {
-        // check permissions
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED &&
-            ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADMIN) == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        } else {
-            Dexter.checkPermissions(new MultiplePermissionsListener() {
-                @Override
-                public void onPermissionsChecked(MultiplePermissionsReport report) {
-                    Log.d(TAG, "onPermissionsChecked");
-                    if (!report.areAllPermissionsGranted()) {
-                        new AlertDialog.Builder(TabbedActivity.this)
-                                .setCancelable(true)
-                                .setIcon(R.mipmap.perm_group_bluetooth)
-                                .setTitle(R.string.bt_permission)
-                                .setMessage(R.string.bt_permission_text)
-                                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();
-                                        finish();
-                                    }
-                                })
-                                .show();
-                    } else {
-                        checkBTisActive();
-                    }
-                }
-
-                @Override
-                public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
-                    Log.d(TAG, "onPermissionRationaleShouldBeShown");
-                }
-
-            }, Manifest.permission.BLUETOOTH, Manifest.permission.BLUETOOTH_ADMIN);
-            return false;
-        }
-    }
-
-    private void checkBTisActive() {
-        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
-        if (bluetoothAdapter.isEnabled()) {
-            startSearchingForBeacons();
-        } else {
-            startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), ACTION_REQUEST_BT);
-        }
-    }
-
-    private void startSearchingForBeacons() {
-        if (!hasBeaconFound) {
-            BTLEService.startService(this);
-            Fragment f = sectionsPagerAdapter.getItem(0);
-            if (f instanceof IPositioning) {
-                ((IPositioning) f).showSearchingDialog();
-            }
         }
     }
 
@@ -210,13 +173,109 @@ public class TabbedActivity extends AppCompatActivity implements NoteFragment.On
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_bluetooth_settings:
-                startActivity(new Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS));
+                startActivity(new Intent(Settings.ACTION_BLUETOOTH_SETTINGS));
                 return true;
             case R.id.action_settings:
-                showUIMessage(R.string.action_settings);
+                Util.showUIMessage(content, R.string.action_settings);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /* Permissions */
+
+    private void startSearching() {
+        checkNecessaryPermission();
+        if (hasNecessaryPermissions) {
+            checkBluetoothIsActive();
+            checkNetworkIsAvailable();
+            checkLocationIsAvailable();
+            startSearchingForBeacons();
+        }
+    }
+
+    private void checkNecessaryPermission() {
+        Log.d(TAG, "checkNecessaryPermission");
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+            hasNecessaryPermissions = true;
+        } else {
+            Dexter.checkPermissions(new MultiplePermissionsListener() {
+                @Override
+                public void onPermissionsChecked(MultiplePermissionsReport report) {
+                    Log.d(TAG, "onPermissionsChecked");
+                    if (!report.areAllPermissionsGranted()) {
+                        hasNecessaryPermissions = false;
+                        new AlertDialog.Builder(TabbedActivity.this)
+                                .setCancelable(true)
+                                .setIcon(R.mipmap.perm_group_bluetooth)
+                                .setTitle(R.string.permissions)
+                                .setMessage(R.string.permission_text)
+                                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                        finish();
+                                    }
+                                })
+                                .show();
+                    } else {
+                        hasNecessaryPermissions = true;
+                        checkBluetoothIsActive();
+                        checkNetworkIsAvailable();
+                        checkLocationIsAvailable();
+                    }
+                }
+
+                @Override
+                public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+                    Log.d(TAG, "onPermissionRationaleShouldBeShown");
+                }
+
+            }, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_COARSE_LOCATION);
+            hasNecessaryPermissions = false;
+        }
+    }
+
+    private void checkBluetoothIsActive() {
+        isBluetoothEnabled = Util.isBluetoothEnabled(this);
+        Log.d(TAG, "checkBluetoothIsActive: " + isBluetoothEnabled);
+        if (!isBluetoothEnabled){
+            Util.showDialog(this, R.string.bluetooth_enable, R.string.bluetooth_enable_text, BluetoothAdapter.ACTION_REQUEST_ENABLE, REQUEST_IS_BLUETOOTH_ENABLED);
+        } else {
+            startSearchingForBeacons();
+        }
+    }
+
+    private void checkNetworkIsAvailable() {
+        isNetworkAvailable = Util.isInternetAvailable(this);
+        Log.d(TAG, "checkNetworkIsAvailable: " + isNetworkAvailable);
+        if (!isNetworkAvailable) {
+            Util.showDialog(this, R.string.network_enabled, R.string.network_enabled_text, Settings.ACTION_SETTINGS, REQUEST_IS_NETWORK_ENABLED);
+        } else {
+            startSearchingForBeacons();
+        }
+    }
+
+    private void checkLocationIsAvailable() {
+        isLocationEnabled = Util.isLocationProviderEnabled(this);
+        Log.d(TAG, "checkLocationIsAvailable: " + isLocationEnabled);
+        if (!isLocationEnabled) {
+            Util.showDialog(this, R.string.location_enable, R.string.location_enable_text, Settings.ACTION_LOCATION_SOURCE_SETTINGS, REQUEST_IS_LOCATION_ENABLED);
+        } else {
+            startSearchingForBeacons();
+        }
+    }
+
+    private void startSearchingForBeacons() {
+        Log.d(TAG, "startSearchingForBeacons: Searching: " + isSearching + " found: " + hasBeaconFound);
+        if (isBluetoothEnabled && isLocationEnabled && isNetworkAvailable && !hasBeaconFound && !isSearching) {
+            isSearching = true;
+            Log.d(TAG, "startSearchingForBeacons: start");
+            BTLEService.startService(this);
+            showSearchingDialog();
         }
     }
 
@@ -225,20 +284,11 @@ public class TabbedActivity extends AppCompatActivity implements NoteFragment.On
      */
     @Override
     public void onListClicked(@NonNull GeoCoordinate item) {
-        showUIMessage(item.toString());
-    }
-
-    private void showUIMessage(@NonNull CharSequence s) {
-        Snackbar.make(content, s, Snackbar.LENGTH_SHORT).show();
-    }
-
-    private void showUIMessage(@StringRes int res) {
-        Snackbar.make(content, res, Snackbar.LENGTH_SHORT).show();
+        Util.showUIMessage(content, item.toString());
     }
 
     private void initSearchView(final List<Topic> topicList) {
         final ArrayList<Topic> filteredTopics = new ArrayList<>(topicList.size());
-
         suggestionAdapter = new SimpleCursorAdapter(
             this,
             R.layout.item_topic,
@@ -293,6 +343,29 @@ public class TabbedActivity extends AppCompatActivity implements NoteFragment.On
         });
     }
 
+    private void showSearchingDialog() {
+        dialog = new ProgressDialog(this);
+        dialog.setIcon(R.mipmap.perm_group_bluetooth);
+        dialog.setTitle(R.string.bt_searchForBeacons);
+        dialog.setCancelable(true);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                cancelSearchingDialog();
+            }
+        });
+        dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        dialog.setIndeterminate(true);
+        dialog.show();
+    }
+
+    private void cancelSearchingDialog(){
+        BTLEService.stopService(this);
+        isSearching = false;
+        dialog.dismiss();
+    }
+
     /* Classes */
 
     private class SectionsPagerAdapter extends FragmentPagerAdapter {
@@ -331,12 +404,11 @@ public class TabbedActivity extends AppCompatActivity implements NoteFragment.On
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()){
                 case BTLEService.RESPONSE_LOCATION:
+                    cancelSearchingDialog();
                     final Fragment f = sectionsPagerAdapter.getItem(0);
                     if (f instanceof IPositioning) {
                         final String url = intent.getStringExtra(BTLEService.RESPONSE_LOCATION_VALUE);
-                        if (url == null) {
-                            ((IPositioning) f).cancelSearchingDialog();
-                        } else {
+                        if (url != null) {
                             ((IPositioning) f).updatePosition(url);
 //                            TODO: Later
 //                            MagicSharkTask task = new MagicSharkTask(url, new GenericCallback<ArrayList<Topic>>() {
@@ -356,8 +428,8 @@ public class TabbedActivity extends AppCompatActivity implements NoteFragment.On
                     break;
 
                 case BTLEService.RESPONSE_ERROR:
-                    showUIMessage(intent.getStringExtra(BTLEService.RESPONSE_ERROR_VALUE));
                     cancelSearchingDialog();
+                    Util.showUIMessage(content, intent.getStringExtra(BTLEService.RESPONSE_ERROR_VALUE));
                     break;
 
                 default:
@@ -366,13 +438,6 @@ public class TabbedActivity extends AppCompatActivity implements NoteFragment.On
             }
         }
 
-        private void cancelSearchingDialog() {
-            Log.d(TAG, "cancelSearchingDialog");
-            Fragment f = sectionsPagerAdapter.getItem(0);
-            if (f instanceof IPositioning) {
-                ((IPositioning) f).cancelSearchingDialog();
-            }
-        }
     }
 
 }

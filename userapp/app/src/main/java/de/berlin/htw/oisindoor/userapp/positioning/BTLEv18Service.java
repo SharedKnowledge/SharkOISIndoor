@@ -7,8 +7,8 @@ import android.util.Log;
 /**
  * Created by Max on 07.01.2016.
  */
-public class BTLEv19Service extends BTLEService {
-    private static final String TAG = BTLEv19Service.class.getSimpleName();
+public class BTLEv18Service extends BTLEService {
+    private static final String TAG = BTLEv18Service.class.getSimpleName();
 
     private BluetoothAdapter.LeScanCallback scanCallback = new BluetoothAdapter.LeScanCallback() {
         @Override
