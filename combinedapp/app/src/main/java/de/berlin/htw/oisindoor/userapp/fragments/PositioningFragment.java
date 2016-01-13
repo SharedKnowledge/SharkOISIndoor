@@ -44,7 +44,9 @@ public class PositioningFragment extends Fragment implements IPositioning {
     @Bind(R.id.f_positioning_alt) TextView altText;
     private BeaconTopicsRecyclerViewAdapter adapter;
 
-    public PositioningFragment() {}
+    public PositioningFragment() {
+        // Required empty public constructor
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -74,19 +76,19 @@ public class PositioningFragment extends Fragment implements IPositioning {
         return v;
     }
 
+    public void updateTopics(@Nullable List<Topic> topicList) {
+        adapter.updateItems(topicList);
+    }
+
     /* IPositioning */
 
+    @Override
     public void updatePosition(@NonNull String url){
         Log.d(TAG, "updatePosition " + url);
         List<String> t = Util.readPropperGEO(url);
         latText.setText(t.get(0));
         lonText.setText(t.get(1));
         altText.setText(t.get(2));
-    }
-
-    @Override
-    public void updateTopics(List<Topic> topicList) {
-        adapter.updateItems(topicList);
     }
 
 }

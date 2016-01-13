@@ -1,18 +1,13 @@
 package de.berlin.htw.oisindoor.userapp.fragments;
 
-import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -32,30 +27,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.berlin.htw.oisindoor.userapp.R;
-import de.berlin.htw.oisindoor.userapp.positioning.BLESniffer;
 import de.berlin.htw.oisindoor.userapp.shark.SharkUploader;
+import de.berlin.htw.oisindoor.userapp.util.Util;
 
-public class AdminFragment extends Fragment {
-    private static final int REQUEST_ACCESS_COARSE_LOCATION = 684;
+public class AdminFragment extends Fragment implements IPositioning {
     private static final String TAG = AdminFragment.class.getSimpleName();
 
     public static AdminFragment newInstance() {
         return new AdminFragment();
     }
 
-    private BLESniffer bleSniffer;
     private EditText altitude;
     private EditText author;
     private EditText content;
-    private EditText latidude;
+    private EditText latitude;
     private EditText longitude;
     private EditText topic;
-    private Handler snifferHandler = new Handler(Looper.getMainLooper());
     private ImageButton bleButton;
-    private boolean isListeing;
     private List<String> uploadData;
     private SharkUploader sharkUploader;
-
     private OnFragmentInteractionListener mListener;
 
     public AdminFragment() {
@@ -63,8 +53,13 @@ public class AdminFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            mListener = (OnFragmentInteractionListener) getActivity();
+        } catch (ClassCastException e) {
+            throw new ClassCastException(getActivity().toString() + " must implement OnFragmentInteractionListener");
+        }
     }
 
     @Override
@@ -72,7 +67,7 @@ public class AdminFragment extends Fragment {
         View v =  inflater.inflate(R.layout.f_admin, container, false);
         setHasOptionsMenu(true);
         v.setFocusable(false);
-        latidude = ( EditText ) v.findViewById(R.id.latitude);
+        latitude = ( EditText ) v.findViewById(R.id.latitude);
         longitude = ( EditText ) v.findViewById(R.id.longitude);
         altitude = ( EditText ) v.findViewById(R.id.altitude);
         topic = ( EditText ) v.findViewById(R.id.topic);
@@ -80,10 +75,8 @@ public class AdminFragment extends Fragment {
         author = ( EditText ) v.findViewById(R.id.author);
         content = ( EditText ) v.findViewById(R.id.content);
         final Button uploadSharkButton = (Button) v.findViewById(R.id.middleButton);
-        isListeing = false;
         uploadData = new ArrayList<>();
         bleButton = ( ImageButton ) v.findViewById(R.id.bluetooth_BTN);
-        bleSniffer = new BLESniffer(getActivity(), latidude, longitude, altitude, bleButton);
 
         // Avoid onclickListener not working because the view is first tapped and you need to double tap the button
         uploadSharkButton.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -102,46 +95,14 @@ public class AdminFragment extends Fragment {
             }
         });
 
-
         bleButton.setImageResource(R.mipmap.bluetooth_off);
-        if(getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            bleButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (!isListeing) {
-                        //Checks the build version of the app, if lollipop or higher, use new permission model
-                        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
-                            // Check if the app has rights to ACCESS_COARSE_LOCATION
-                            if (getActivity().checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
-                                    != PackageManager.PERMISSION_GRANTED) {
-                                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                                        REQUEST_ACCESS_COARSE_LOCATION);
-                            } else {
-                                snifferHandler.post(bleSniffer);
-                                isListeing = true;
-                            }
-                        } else {
-                            snifferHandler.post(bleSniffer);
-                            isListeing = true;
-                        }
-                    } else {
-                        bleSniffer.stop();
-                        isListeing = false;
-                    }
-                }
-            });
-        } else {
-            latidude.setText(getResources().getString(R.string.ble_not_found_1));
-            longitude.setText(getResources().getString(R.string.ble_not_found_2));
-            altitude.setText(getResources().getString(R.string.ble_not_found_3));
-        }
 
-        latidude.addTextChangedListener(new TextWatcher() {
+        latitude.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                latidude.setError(null);
+                latitude.setError(null);
             }
             @Override
             public void afterTextChanged(Editable s) {  }
@@ -171,7 +132,51 @@ public class AdminFragment extends Fragment {
         return v;
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_f_admin, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.action_info:
+                new AlertDialog.Builder(getActivity())
+                        .setTitle(R.string.information)
+                        .setMessage(R.string.information_content)
+                        .setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        })
+                        .show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
+    public void onStartSearching() {
+        if (bleButton != null) {
+            bleButton.setImageResource(R.mipmap.bluetooth_on);
+        }
+    }
+
+    public void onStopSearching(){
+        if (bleButton != null) {
+            bleButton.setImageResource(R.mipmap.bluetooth_off);
+        }
+    }
+
     private void showSharkUploadInfo(){
+        Log.d(TAG, "showSharkUploadInfo");
         boolean isNotEmpty = true;
         if (TextUtils.isEmpty(topic.getText().toString())) {
             topic.setError(getResources().getString(R.string.topic_err));
@@ -185,15 +190,15 @@ public class AdminFragment extends Fragment {
             content.setError(getResources().getString(R.string.content_err));
             isNotEmpty = false;
         }
-        if (TextUtils.isEmpty(latidude.getText().toString())) {
-            latidude.setError(getResources().getString(R.string.geo_err));
+        if (TextUtils.isEmpty(latitude.getText().toString())) {
+            latitude.setError(getResources().getString(R.string.geo_err));
             longitude.setError(getResources().getString(R.string.geo_err ));
             altitude.setError(getResources().getString(R.string.geo_err));
             isNotEmpty = false;
         }
 
         if (isNotEmpty) {
-            String sLatitude = latidude.getText().toString();
+            String sLatitude = latitude.getText().toString();
             String sLongitude = longitude.getText().toString();
             String sAltitude = altitude.getText().toString();
             uploadData.add(sLatitude + "," + sLongitude + "," + sAltitude);
@@ -209,11 +214,10 @@ public class AdminFragment extends Fragment {
                     getResources().getString(R.string.topic_TXT) + ": " + topic.getText().toString() + "\n" +
                     getResources().getString(R.string.author_TXT) + ": " + author.getText().toString() + "\n" +
                     getResources().getString(R.string.content_TXT) + ": " + content.getText().toString());
+
             builder.setPositiveButton(R.string.upload, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     if (isNetworkConnected()) {
-                        bleSniffer.stop();
-                        snifferHandler.removeCallbacks(bleSniffer);
                         sharkUploader = new SharkUploader(uploadData);
                         sharkUploader.execute();
                     }
@@ -230,6 +234,7 @@ public class AdminFragment extends Fragment {
     }
 
     private boolean isNetworkConnected() {
+        Log.d(TAG, "isNetworkConnected");
         boolean isConnected = true;
         ConnectivityManager connectivityManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         if (connectivityManager.getActiveNetworkInfo() != null) {
@@ -264,78 +269,15 @@ public class AdminFragment extends Fragment {
         }
     }
 
-    @SuppressWarnings("deprecation")
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        try {
-            mListener = (OnFragmentInteractionListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
+    /* IPositioning */
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.menu_f_admin, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.action_info:
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(R.string.information);
-                builder.setMessage(R.string.information_content);
-                builder.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                    }
-                });
-                builder.show();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    @Override
-    public void onStop() {
-        bleSniffer.stop();
-        snifferHandler.removeCallbacks(bleSniffer);
-        super.onStop();
-    }
-
-    @Override
-    public void onStart() {
-        if ( isListeing ) {
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
-                if (getActivity().checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_ACCESS_COARSE_LOCATION);
-                } else {
-                    Log.w(TAG, "Continue scan");
-                    bleButton.setImageResource(R.mipmap.bluetooth_on);
-                    snifferHandler.post(bleSniffer);
-                }
-            } else {
-                Log.w(TAG, "Continue scan");
-                bleButton.setImageResource(R.mipmap.bluetooth_on);
-                snifferHandler.post(bleSniffer);
-            }
-        } else {
-            Log.w(TAG, "No previous sans.");
-                    bleButton.setImageResource(R.mipmap.bluetooth_off);
-            // do not continue sniffing
-        }
-        super.onStart();
+    public void updatePosition(@NonNull String url) {
+        Log.d(TAG, "updatePosition: " + url);
+        List<String> geos = Util.readPropperGEO(url);
+        longitude.setText(geos.get(0));
+        latitude.setText(geos.get(1));
+        altitude.setText(geos.get(2));
     }
 
     /**
@@ -350,7 +292,7 @@ public class AdminFragment extends Fragment {
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        public void onFragmentInteraction(Uri uri);
+        void onFragmentInteraction(Uri uri);
     }
 
 }

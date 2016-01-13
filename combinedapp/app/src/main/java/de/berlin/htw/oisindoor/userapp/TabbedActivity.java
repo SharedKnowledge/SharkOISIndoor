@@ -42,7 +42,6 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.berlin.htw.oisindoor.userapp.fragments.AdminFragment;
-import de.berlin.htw.oisindoor.userapp.fragments.IPositioning;
 import de.berlin.htw.oisindoor.userapp.fragments.PositioningFragment;
 import de.berlin.htw.oisindoor.userapp.model.Topic;
 import de.berlin.htw.oisindoor.userapp.positioning.BTLEService;
@@ -283,6 +282,8 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
             Log.d(TAG, "startSearchingForBeacons: start");
             BTLEService.startService(this);
             showSearchingDialog();
+            AdminFragment f = (AdminFragment) sectionsPagerAdapter.getItem(1);
+            f.onStartSearching();
         }
     }
 
@@ -362,6 +363,7 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
     private void cancelSearchingDialog(){
         BTLEService.stopService(this);
         isSearching = false;
+        ((AdminFragment) sectionsPagerAdapter.getItem(1)).onStopSearching();
         dialog.dismiss();
     }
 
@@ -413,21 +415,24 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
             switch (intent.getAction()){
                 case BTLEService.RESPONSE_LOCATION:
                     cancelSearchingDialog();
-                    final Fragment f = sectionsPagerAdapter.getItem(0);
-                    if (f instanceof IPositioning) {
-                        final String url = intent.getStringExtra(BTLEService.RESPONSE_LOCATION_VALUE);
-                        if (url != null) {
-                            ((IPositioning) f).updatePosition(url);
-                            SharkDownloader task = new SharkDownloader(url, new GenericCallback<ArrayList<Topic>>() {
-                                @Override
-                                public void onResult(ArrayList<Topic> data) {
-                                    ((IPositioning) f).updateTopics(data);
-                                    initSearchView(Topic.ITEMS);
-                                    hasBeaconFound = true;
-                                }
-                            });
-                            task.execute();
-                        }
+                    final PositioningFragment f0 = (PositioningFragment) sectionsPagerAdapter.getItem(0);
+                    final AdminFragment f1 = (AdminFragment) sectionsPagerAdapter.getItem(1);
+                    final String url = intent.getStringExtra(BTLEService.RESPONSE_LOCATION_VALUE);
+
+                    if (url != null) {
+                        f0.updatePosition(url);
+                        SharkDownloader task = new SharkDownloader(url, new GenericCallback<ArrayList<Topic>>() {
+                            @Override
+                            public void onResult(ArrayList<Topic> data) {
+                                f0.updateTopics(data);
+                                initSearchView(Topic.ITEMS);
+                                hasBeaconFound = true;
+                            }
+                        });
+                        task.execute();
+
+                        f1.updatePosition(url);
+                        f1.onStopSearching();
                     }
                     break;
 
