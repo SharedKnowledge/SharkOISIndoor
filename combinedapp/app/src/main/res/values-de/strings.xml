@@ -1,0 +1,42 @@
+<resources>
+
+    <!-- Fragment-->
+    <string name="app_name">OIS-Indoor</string>
+    <string name="middleButton_TXT">Upload zur Sharkdatenbank</string>
+    <string name="latitude_TXT">Latitude</string>
+    <string name="longitude_TXT">Longitude</string>
+    <string name="altitude_TXT">Altitude</string>
+    <string name="topic_TXT">Thema</string>
+    <string name="author_TXT">Autor</string>
+    <string name="content_TXT">Inhalt</string>
+    <string name="ble_not_found_1">BLE</string>
+    <string name="ble_not_found_2">nicht</string>
+    <string name="ble_not_found_3">unterstützt</string>
+    <string name="no_internet_con">Keine Verbindung zum Internet</string>
+    <string name="no_internet_con_hint">Bitte stelle sicher, dass du mit dem Internet verbunden bist.</string>
+    <string name="no_internet_con_open_pref">Einstellungen öffnen</string>
+    <string name="abort">Abbrechen</string>
+    <string name="no_permissions_granted_1">Keine</string>
+    <string name="no_permissions_granted_2">Berechtigung</string>
+    <string name="no_permissions_granted_3">erhalten</string>
+    <string name="uploud_information">Diese Daten hochladen?</string>
+    <string name="upload">Upload</string>
+    <string name="topic_err">Trage ein Thema ein</string>
+    <string name="author_err">Trage einen Autor ein</string>
+    <string name="content_err">Trage einen Inhalt ein</string>
+    <string name="geo_err">Bisher keine Ergebnisse</string>
+    <string name="information">Information</string>
+    <string name="information_content">Dieser Bereich dient dazu, Geo-Informationen eines Beacons  auszulesen und zu diesen Informationen einen Eintrag in der
+        Sharkdatenbank zu hinterlegen. Der Eintrag enthält:\n• Die Geo-Informationen\n• Ein Thema\n• Einen Autor\n• Einen Inhalt\n</string>
+
+    <!-- BLESniffer -->
+    <string name="bluetooth_not_enabled">Bluetooth ist leider nicht aktiviert. Wir können keine Beacons für dich finden. Bitte aktiviere dein Bluetooth.</string>
+    <string name="bluetooth_safe_enable">Bluetooth sicher aktivieren</string>
+    <string name="location_enable">GPS ist leider nicht aktiviert. Ab Android Marshmellow, benötigen wir es zusätzlich um die BLE-Beacons zu finden. Bitte aktiviere dein GPS.</string>
+    <string name="open_location_settings">Öffne Ortungseinstellungen</string>
+    <string name="no_propper_geos_1">Keine</string>
+    <string name="no_propper_geos_2">korrekten</string>
+    <string name="no_propper_geos_3">Geos</string>
+
+</resources>
+

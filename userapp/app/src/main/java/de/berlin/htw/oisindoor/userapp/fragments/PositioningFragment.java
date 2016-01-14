@@ -1,7 +1,5 @@
 package de.berlin.htw.oisindoor.userapp.fragments;
 
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -45,19 +43,14 @@ public class PositioningFragment extends Fragment implements IPositioning {
     @Bind(R.id.f_positioning_lat) TextView latText;
     @Bind(R.id.f_positioning_lon) TextView lonText;
     @Bind(R.id.f_positioning_alt) TextView altText;
-    private ProgressDialog dialog;
-    /**
-     * Workaround because the activity is faster then the fragment instantiation when bluetooth is already enabled,
-     * i.e. not ready to show a dialog
-     * so add a pending flag
-     */
-    private boolean isDialogPending = false;
+    private BeaconTopicsRecyclerViewAdapter adapter;
 
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
     public PositioningFragment() {}
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 
     @Nullable
     @Override
@@ -66,80 +59,39 @@ public class PositioningFragment extends Fragment implements IPositioning {
         View v = inflater.inflate(R.layout.f_positioning, container, false);
         ButterKnife.bind(this, v);
 
-        RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.f_positioning_rv);
-        recyclerView.setLayoutManager(new LinearLayoutManager(v.getContext()));
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setNestedScrollingEnabled(true);
-        recyclerView.setAdapter(new BeaconTopicsRecyclerViewAdapter(Topic.ITEMS, new TopicListener() {
+        adapter = new BeaconTopicsRecyclerViewAdapter(new ArrayList<Topic>(), new TopicListener() {
             @Override
             public void onTopicClicked(@NonNull Topic t) {
                 Log.d(TAG, "onTopicClicked: " + t);
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(t.getTargetURL())));
             }
-        }));
+        });
+
+        RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.f_positioning_rv);
+        recyclerView.setLayoutManager(new LinearLayoutManager(v.getContext()));
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setNestedScrollingEnabled(true);
+        recyclerView.setAdapter(adapter);
         return v;
     }
 
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        if (isDialogPending) {
-            showSearchingDialog();
-        }
-    }
-
-    /*
-     * IPositioning
-     */
-
-    public void showSearchingDialog() {
-        if (isAdded()) {
-            isDialogPending = false;
-            showDialog();
-        } else {
-            isDialogPending = true;
-        }
-    }
-
-    @Override
-    public void cancelSearchingDialog() {
-        if (dialog != null) {
-            dialog.dismiss();
-        }
-    }
+    /* IPositioning */
 
     public void updatePosition(@NonNull String url){
         Log.d(TAG, "updatePosition " + url);
-        if (dialog != null) {
-            dialog.dismiss();
-        }
-        url = url.substring(2); // FIXME: Coding and co problems
+        //url = url.substring(2); // FIXME: Coding and co problems
         List<String> t = readPropperGEO(url);
         latText.setText(t.get(0));
         lonText.setText(t.get(1));
         altText.setText(t.get(2));
     }
 
-    /*
-     * Stuff
-     */
-
-    private void showDialog() {
-        dialog = new ProgressDialog(getActivity());
-        dialog.setIcon(R.mipmap.perm_group_bluetooth);
-        dialog.setTitle(R.string.bt_searchForBeacons);
-        dialog.setCancelable(true);
-        dialog.setCanceledOnTouchOutside(false);
-        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        dialog.setIndeterminate(true);
-        dialog.show();
+    @Override
+    public void updateTopics(List<Topic> topicList) {
+        adapter.updateItems(topicList);
     }
+
+    /* Stuff */
 
     // thx to Stefan J.
     private List<String> readPropperGEO(String geoAsString) {

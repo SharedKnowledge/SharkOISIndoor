@@ -1,0 +1,61 @@
+<resources>
+    <string name="app_name">OIS-Indoor</string>
+    <string name="action_search">Suchen</string>
+    <string name="action_bluetooth_settings">BluetoothSettings</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="myLocation">Mein Standort</string>
+    <string name="myLocationBeaconContent">Beacon</string>
+    <string name="fix">Fix</string>
+    <string name="bt_searchForBeacons">Searching for Signals&#8230;</string>
+
+    <string name="permissions">Permissions</string>
+    <string name="permission_text">We need the location permission to work correct&#8230;</string>
+    <string name="enable_requirements">We need bluetooth, location and network enabled to find beacons</string>
+
+    <string name="bluetooth_enable">Bluetooth</string>
+    <string name="bluetooth_enable_text">Unfortunately it seems bluetooth is disabled</string>
+    <string name="location_enable">No Location provider</string>
+    <string name="location_enable_text">Unfortunately it seems you have the location settings disabled</string>
+    <string name="network_enabled">No Connection</string>
+    <string name="network_enabled_text">Unfortunately it seems you have no network connection</string>
+    
+    <!-- Fragment-->
+    <string name="middleButton_TXT">Upload to Sharkdatabase</string>
+    <string name="latitude_TXT">Latitude</string>
+    <string name="longitude_TXT">Longitude</string>
+    <string name="altitude_TXT">Altitude</string>
+    <string name="topic_TXT">Topic</string>
+    <string name="author_TXT">Author</string>
+    <string name="content_TXT">Content</string>
+    <string name="ble_not_found_1">BLE</string>
+    <string name="ble_not_found_2">not</string>
+    <string name="ble_not_found_3">supported</string>
+    <string name="no_internet_con">No internet connection</string>
+    <string name="no_internet_con_hint">Please make sure, you are connected to the internet</string>
+    <string name="no_internet_con_open_pref">Open settings</string>
+    <string name="no_permissions_granted">No permissions granted</string>
+    <string name="no_permissions_granted_1">No</string>
+    <string name="no_permissions_granted_2">permissions</string>
+    <string name="no_permissions_granted_3">granted</string>
+    <string name="uploud_information">Upload those information?</string>
+    <string name="upload">Upload</string>
+    <string name="topic_err">Enter a topic</string>
+    <string name="author_err">Enter an author</string>
+    <string name="content_err">Enter a content</string>
+    <string name="geo_err">Nothing found yet</string>
+    <string name="information">Information</string>
+    <string name="information_content">This area is used to show found geo locations broadcasted by beacons and upload them with additional
+    information to the Sharkdatabase. This upload contains:\n� The geo-information\n� A topic\n� An author\n� A content</string>
+
+    <!--BLESniffer -->
+    <string name="bluetooth_not_enabled">Unfortunately Bluetooth is not enabled. However we need it to find some beacons. Please enable your Bluetooth.</string>
+    <string name="bluetooth_safe_enable">Activate Bluetooth safely</string>
+    <string name="location_not_enable">Unfortunately GPS is not enabled. Since Android Marshmellow, we need it in addition to find some beacons. Please enable your GPS.</string>
+    <string name="open_location_settings">Open location settings</string>
+    <string name="no_propper_geos_1">No</string>
+    <string name="no_propper_geos_2">propper</string>
+    <string name="no_propper_geos_3">geos</string>
+
+
+</resources>

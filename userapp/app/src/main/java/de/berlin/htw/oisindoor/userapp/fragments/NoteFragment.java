@@ -35,10 +35,6 @@ public class NoteFragment extends Fragment {
     private List<GeoCoordinate> list;
     private OnListFragmentInteractionListener listener;
 
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
     public NoteFragment() {}
 
     @Override
