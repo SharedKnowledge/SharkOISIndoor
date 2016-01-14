@@ -207,6 +207,15 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
         }
     }
 
+    private void stopSearching(){
+        BTLEService.stopService(this);
+        isSearching = false;
+        ((AdminFragment) sectionsPagerAdapter.getItem(1)).onStopSearching();
+        if (dialog != null) {
+            dialog.dismiss();
+        }
+    }
+
     @TargetApi(Build.VERSION_CODES.M)
     private void checkNecessaryPermission() {
         Log.d(TAG, "checkNecessaryPermission");
@@ -352,19 +361,12 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
         dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                cancelSearchingDialog();
+                stopSearching();
             }
         });
         dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         dialog.setIndeterminate(true);
         dialog.show();
-    }
-
-    private void cancelSearchingDialog(){
-        BTLEService.stopService(this);
-        isSearching = false;
-        ((AdminFragment) sectionsPagerAdapter.getItem(1)).onStopSearching();
-        dialog.dismiss();
     }
 
     /**
@@ -414,36 +416,45 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()){
                 case BTLEService.RESPONSE_LOCATION:
-                    cancelSearchingDialog();
-                    final PositioningFragment f0 = (PositioningFragment) sectionsPagerAdapter.getItem(0);
-                    final AdminFragment f1 = (AdminFragment) sectionsPagerAdapter.getItem(1);
                     final String url = intent.getStringExtra(BTLEService.RESPONSE_LOCATION_VALUE);
-
-                    if (url != null) {
-                        f0.updatePosition(url);
-                        SharkDownloader task = new SharkDownloader(url, new GenericCallback<ArrayList<Topic>>() {
-                            @Override
-                            public void onResult(ArrayList<Topic> data) {
-                                f0.updateTopics(data);
-                                initSearchView(Topic.ITEMS);
-                                hasBeaconFound = true;
-                            }
-                        });
-                        task.execute();
-
-                        f1.updatePosition(url);
-                        f1.onStopSearching();
-                    }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            handleFoundBeacon(url);
+                        }
+                    });
                     break;
 
                 case BTLEService.RESPONSE_ERROR:
-                    cancelSearchingDialog();
+                    stopSearching();
                     Util.showUIMessage(content, intent.getStringExtra(BTLEService.RESPONSE_ERROR_VALUE));
                     break;
 
                 default:
                     Log.w(TAG, "unknown action: " + intent.getAction());
                     break;
+            }
+        }
+
+        private void handleFoundBeacon(String url){
+            stopSearching();
+            final PositioningFragment f0 = (PositioningFragment) sectionsPagerAdapter.getItem(0);
+            final AdminFragment f1 = (AdminFragment) sectionsPagerAdapter.getItem(1);
+
+            if (url != null) {
+                f0.updatePosition(url);
+                SharkDownloader task = new SharkDownloader(url, new GenericCallback<ArrayList<Topic>>() {
+                    @Override
+                    public void onResult(ArrayList<Topic> data) {
+                        f0.updateTopics(data);
+                        initSearchView(Topic.ITEMS);
+                        hasBeaconFound = true;
+                    }
+                });
+                task.execute();
+
+                f1.updatePosition(url);
+                f1.onStopSearching();
             }
         }
 

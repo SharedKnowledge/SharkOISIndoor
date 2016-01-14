@@ -275,8 +275,8 @@ public class AdminFragment extends Fragment implements IPositioning {
     public void updatePosition(@NonNull String url) {
         Log.d(TAG, "updatePosition: " + url);
         List<String> geos = Util.readPropperGEO(url);
-        longitude.setText(geos.get(0));
-        latitude.setText(geos.get(1));
+        latitude.setText(geos.get(0));
+        longitude.setText(geos.get(1));
         altitude.setText(geos.get(2));
     }
 
