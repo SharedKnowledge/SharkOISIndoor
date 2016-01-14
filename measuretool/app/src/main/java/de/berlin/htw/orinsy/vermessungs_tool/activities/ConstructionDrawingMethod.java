@@ -26,13 +26,14 @@ import de.berlin.htw.orinsy.vermessungs_tool.utils.GeoDataSave;
 
 public class ConstructionDrawingMethod extends Activity {
 
-    private ArrayList<String> results, getResults, getSetupCoordinates;
+    private ArrayList<String> getResults, getSetupCoordinates;
     private Intent intent;
     private double startLatitude = 0, startLongitude = 0, referenceLatitude = 0, referenceLongitude = 0,
-            newLatitude = 0, newLongitude = 0, yAxis = 0, xAxis = 0, heightValue = 0;
-    private TextView textView1, textView2, textView4, textView5, textView6, tvLatitudeStart, tvLongitudeStart, tvLatitudeReference, tvLongitudeReference;
+            newLatitude = 0, newLongitude = 0, yAxis = 0, xAxis = 0, height = 0;
+    private int floor = 0;
+    private TextView textView1, textView2, textView4, textView5, textView6, tvLatitudeStart, tvLongitudeStart, tvLatitudeReference, tvLongitudeReference, tvHeight, tvFloor;
     private EditText inputYAxis, inputXAxis;
-    private String info, height;
+    private String info;
     private CalculateGeoDataConstructionDrawing geoData;
     private InputMethodManager inputManager;
     private static int SUBACTIVITY_REQUESTCODE = 10;
@@ -57,6 +58,8 @@ public class ConstructionDrawingMethod extends Activity {
         this.tvLongitudeStart = (TextView) findViewById(R.id.tv_longitude_start);
         this.tvLatitudeReference = (TextView) findViewById(R.id.tv_latitude_reference);
         this.tvLongitudeReference = (TextView) findViewById(R.id.tv_longitude_reference);
+        this.tvHeight = (TextView) findViewById(R.id.tv_height_1);
+        this.tvFloor = (TextView) findViewById(R.id.tv_floor_1);
         this.getResults = new ArrayList<>();
         this.getSetupCoordinates = new ArrayList<>();
         this.newGeoDataList = new ArrayList<>();
@@ -107,27 +110,7 @@ public class ConstructionDrawingMethod extends Activity {
                     this.inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     this.inputManager.hideSoftInputFromWindow((null == getCurrentFocus()) ? null : getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
-
-
                     AlertBuilder alertBuilder = new AlertBuilder(this);
-                    /*
-                    try {
-                        geoDataXml = new GeoData(info, heightValue, newLatitude, newLongitude);
-                        Log.d("GeoData", String.valueOf(geoDataXml.getHeight()));
-                        if (newDataFile.exists()){
-                            newGeoDataList = GeoDataLoad.loadGeoData(newDataFile);
-                        }
-                        newGeoDataList.add(geoDataXml);
-
-                        for (int i = 0; i < newGeoDataList.size(); i++){
-                            Log.d("Debug ListNEWCR", newGeoDataList.get(i).getInfo());
-                        }
-                        GeoDataSave.saveGeoData(newGeoDataList, newDataFile);
-
-                    } catch (Exception ex){
-                        Log.e("Data FileSave", "speichern der newGeoData.mgd fehlgeschlagen");
-                    }
-                    */
                     break;
 
                 case R.id.btn_apply_new_geodata:
@@ -175,7 +158,7 @@ public class ConstructionDrawingMethod extends Activity {
 
                     try {
 
-                        geoDataXml = new GeoData(info, heightValue, newLatitude, newLongitude);
+                        geoDataXml = new GeoData(info, height, newLatitude, newLongitude, floor);
                         if (newDataFile.exists()) {
                             newGeoDataList = GeoDataLoad.loadGeoData(newDataFile);
                         }
@@ -191,7 +174,7 @@ public class ConstructionDrawingMethod extends Activity {
                     }
 
 
-                    getResults.add("Info: " + info + "  Height: " + height + "\nLa: " + newLatitude + "\nLo: " + newLongitude);
+                    getResults.add("Info: " + info + " Height: " + height + " Floor: " + floor + "\nLa: " + newLatitude + "\nLo: " + newLongitude);
 
                 } // End of onClick(DialogInterface dialog, int whichButton)
             }); //End of alert.setPositiveButton
@@ -247,16 +230,17 @@ public class ConstructionDrawingMethod extends Activity {
         //this.setupCoordinates.add(2, getSetupCoordinates.get(2));
         this.referenceLongitude = Double.parseDouble(getSetupCoordinates.get(3));
         //this.setupCoordinates.add(3, getSetupCoordinates.get(3));
-        this.height = getSetupCoordinates.get(4);
+        this.height = Double.parseDouble(getSetupCoordinates.get(4));
         //this.setupCoordinates.add(4, getSetupCoordinates.get(4));
-        this.heightValue = Double.parseDouble(getSetupCoordinates.get(5));
+        this.floor = Integer.parseInt(getSetupCoordinates.get(5));
         this.tvLatitudeStart.setText(String.valueOf(startLatitude));
         this.textView5.setVisibility(View.VISIBLE);
         this.tvLongitudeStart.setText(String.valueOf(startLongitude));
         this.tvLatitudeReference.setText(String.valueOf(referenceLatitude));
         this.textView6.setVisibility(View.VISIBLE);
         this.tvLongitudeReference.setText(String.valueOf(referenceLongitude));
-        Log.d(MYLOG, "startLatitude: " + startLatitude + " " + "");
+        this.tvHeight.setText(String.valueOf(this.height));
+        this.tvFloor.setText(String.valueOf(this.floor));
     }
 
 }

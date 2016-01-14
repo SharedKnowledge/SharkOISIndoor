@@ -35,7 +35,8 @@ public class GeoDataList extends Activity {
     private List<GeoData> allGeoData, newGeoDataList;
     private Measurement measurementXml;
     private Persister serializerXml;
-    private File xmlFile, dataFile, newDataFile;
+    private File xmlFileCompass, xmlFileConstuction, dataFileCompass, dataFileConstruction, newDataFile;
+    private boolean method = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +50,7 @@ public class GeoDataList extends Activity {
 
             getResults = subActivityExtras.getStringArrayList("newGeoDatas");
 
+            method = false;
 
             // for (int i = 0; i < getResults.size(); i++) {
 
@@ -62,6 +64,7 @@ public class GeoDataList extends Activity {
 
             getSetupCoordinates = subActivityExtras.getStringArrayList("setup_coordinates");
 
+            method = true;
             //   for (int i = 0; i < getSetupCoordinates.size(); i++) {
 
             //     setupCoordinates.add(getSetupCoordinates.get(i));
@@ -77,8 +80,10 @@ public class GeoDataList extends Activity {
         measurementXml = new Measurement();
         serializerXml = new Persister();
         newDataFile = new File(Environment.getExternalStorageDirectory() , "/GeoDatas/newGeoData.mgs");
-        dataFile = new File(Environment.getExternalStorageDirectory() , "/GeoDatas/geoData.mgs");
-        xmlFile = new File(Environment.getExternalStorageDirectory() , "/GeoDatas/geoData.xml");
+        dataFileCompass = new File(Environment.getExternalStorageDirectory() , "/GeoDatas/geoDataCompass.mgs");
+        dataFileConstruction = new File(Environment.getExternalStorageDirectory() , "/GeoDatas/geoDataConstruction.mgs");
+        xmlFileCompass = new File(Environment.getExternalStorageDirectory() , "/GeoDatas/geoDataCompass.xml");
+        xmlFileConstuction = new File(Environment.getExternalStorageDirectory() , "/GeoDatas/geoDataConstruction.xml");
 
         try{
             newGeoDataList = GeoDataLoad.loadGeoData(newDataFile);
@@ -86,7 +91,7 @@ public class GeoDataList extends Activity {
                 Log.d("Debug ListNEW", newGeoDataList.get(i).getInfo());
             }
         } catch (IOException ex){
-            Log.e("Debug FileLoad", "Lesen der newGeoData.mgd fehlgeschlagen");
+            Log.e("Debug FileLoad", "Lesen der newGeoData.mgs fehlgeschlagen");
         }
 
 
@@ -132,22 +137,42 @@ public class GeoDataList extends Activity {
 
                 case R.id.btn_export_file:
 
-                    try{
-                        if (dataFile.exists()){
-                            allGeoData = GeoDataLoad.loadGeoData(dataFile);
-                            for (int i = 0; i < allGeoData.size(); i++) {
-                                Log.d("Debug ListALL", allGeoData.get(i).getInfo());
+                    try {
+                        if (!method) {
+                            if (dataFileCompass.exists()) {
+                                allGeoData = GeoDataLoad.loadGeoData(dataFileCompass);
+                                for (int i = 0; i < allGeoData.size(); i++) {
+                                    Log.d("Debug ListALL", allGeoData.get(i).getInfo());
+                                }
                             }
+                            for (int i = 0; i < newGeoDataList.size(); i++) {
+                                allGeoData.add(newGeoDataList.get(i));
+                            }
+                            GeoDataSave.saveGeoData(allGeoData, dataFileCompass);
+                            for (int i = 0; i < allGeoData.size(); i++) {
+                                Log.d("Debug ListEXPORT", allGeoData.get(i).getInfo());
+                            }
+                            measurementXml.setGeoData(allGeoData);
+                            serializerXml.write(measurementXml, xmlFileCompass);
+
+                        } else {
+                            if (dataFileConstruction.exists()) {
+                                allGeoData = GeoDataLoad.loadGeoData(dataFileConstruction);
+                                for (int i = 0; i < allGeoData.size(); i++) {
+                                    Log.d("Debug ListALL", allGeoData.get(i).getInfo());
+                                }
+                            }
+                            for (int i = 0; i < newGeoDataList.size(); i++) {
+                                allGeoData.add(newGeoDataList.get(i));
+                            }
+                            GeoDataSave.saveGeoData(allGeoData, dataFileConstruction);
+                            for (int i = 0; i < allGeoData.size(); i++) {
+                                Log.d("Debug ListEXPORT", allGeoData.get(i).getInfo());
+                            }
+                            measurementXml.setGeoData(allGeoData);
+                            serializerXml.write(measurementXml, xmlFileConstuction);
                         }
-                        for (int i = 0; i < newGeoDataList.size(); i++) {
-                            allGeoData.add(newGeoDataList.get(i));
-                        }
-                        GeoDataSave.saveGeoData(allGeoData, dataFile);
-                        for (int i = 0; i < allGeoData.size(); i++) {
-                            Log.d("Debug ListEXPORT", allGeoData.get(i).getInfo());
-                        }
-                        measurementXml.setGeoData(allGeoData);
-                        serializerXml.write(measurementXml, xmlFile);
+
                     }   catch (IOException ex) {
                         Log.e("Debug XML", "xml Datei nicht erstellt");
                         Toast.makeText(GeoDataList.this, "Speichern fehlgeschlagen", Toast.LENGTH_SHORT).show();

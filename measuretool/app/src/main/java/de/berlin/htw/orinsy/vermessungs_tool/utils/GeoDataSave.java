@@ -25,10 +25,13 @@ public class GeoDataSave {
             writer.write("\n");
             writer.write("" + datatmp.getHeight());
             writer.write("\n");
+            writer.write("" + datatmp.getFloor());
+            writer.write("\n");
             writer.write("" + datatmp.getLatitude());
             writer.write("\n");
             writer.write("" + datatmp.getLongitude());
             writer.write("\n");
+
         }
 
         writer.close();

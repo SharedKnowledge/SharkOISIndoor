@@ -16,13 +16,14 @@
     <string name="choose_method">Please choose your method</string>
     <string name="GPS_method">GPS and Compass</string>
     <string name="construction_drawing_method">Construction Drawing</string>
-    <string name="setup_coordinates">Set up coordinates</string>
+    <string name="setup_coordinates">Set up geo coordinates</string>
     <string name="setup_start_coordinate">Set up start coordinates</string>
     <string name="setup_reference_coordinate">Set up reference coordinates</string>
     <string name="input_coordinates">Enter x and y coordinates</string>
     <string name="input_y_coordiante">y</string>
     <string name="input_x_coordinate">x</string>
-    <string name="menu_floors">Height</string>
+    <string name="menu_height">Height</string>
+    <string name="menu_floors">Floor</string>
     <string name="floor_0">Floor 0 (0m)</string>
     <string name="floor_1">Floor 1 (5m)</string>
     <string name="floor_2">Floor 2 (10m)</string>

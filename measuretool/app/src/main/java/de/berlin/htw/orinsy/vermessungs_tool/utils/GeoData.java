@@ -13,13 +13,15 @@ public class GeoData {
     public GeoData(){
         this.info = null;
         this.height = 0;
+        this.floor = 0;
         this.latitude = 0;
         this.longitude = 0;
     }
 
-    public GeoData(String info, double height, double latitude, double longitude){
+    public GeoData(String info, double height, double latitude, double longitude, int floor){
         this.info = info;
         this.height = height;
+        this.floor = floor;
         this.latitude = latitude;
         this.longitude = longitude;
     }
@@ -35,6 +37,10 @@ public class GeoData {
 
     @Element
     private double height;
+
+    @Element
+    private int floor;
+
 
     public void setInfo(String info) {
         this.info = info;
@@ -52,6 +58,10 @@ public class GeoData {
         this.height = height;
     }
 
+    public void setFloor(int floor) {
+        this.floor = floor;
+    }
+
     public String getInfo(){
         return info;
     }
@@ -66,6 +76,10 @@ public class GeoData {
 
     public double getHeight() {
         return height;
+    }
+
+    public int getFloor() {
+        return floor;
     }
 }
 

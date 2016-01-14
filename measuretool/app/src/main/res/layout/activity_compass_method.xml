@@ -53,14 +53,45 @@
             android:textSize="12pt"/>
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
+
     <EditText
         android:id="@+id/edit_height"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:hint="@string/height"
         android:numeric="decimal"
+        android:layout_weight="1"
         android:textSize="12pt"/>
+
+        <TextView
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:gravity="center"
+            android:singleLine="false"
+            android:text="@string/comma"
+            android:textAppearance="?android:attr/textAppearanceLarge"/>
+
+
+        <EditText
+            android:id="@+id/edit_floor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="@string/menu_floors"
+            android:numeric="decimal"
+            android:textSize="12pt"
+            android:layout_weight="1"
+         />
+
+
+    </LinearLayout>
+
 
     <TextView
         android:id="@+id/tv_input_distance"

@@ -26,14 +26,17 @@ public class GeoDataLoad {
             double height;
             double latitude;
             double longitude;
+            int floor;
 
             while( (info = reader.readLine()) != null){
 
                 height = Double.parseDouble(reader.readLine());
+                floor = Integer.parseInt(reader.readLine());
                 latitude = Double.parseDouble(reader.readLine());
                 longitude = Double.parseDouble(reader.readLine());
 
-                datatmp = new GeoData(info, height, latitude, longitude);
+
+                datatmp = new GeoData(info, height, latitude, longitude, floor);
                 tmpList.add(datatmp);
             }
         } finally {

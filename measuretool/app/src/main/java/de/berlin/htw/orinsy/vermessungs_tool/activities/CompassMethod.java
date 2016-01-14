@@ -29,12 +29,13 @@ public class CompassMethod extends Activity {
 
     private ArrayList<String> results;
     private Intent intent;
-    private EditText enterLongitude, enterLatitude, enterDistance, enterAngle, enterHeight;
+    private int floor = 0;
+    private EditText enterLongitude, enterLatitude, enterDistance, enterAngle, enterHeight, enterFloor;
     private double longitude = 0, latitude = 0, distance = 0, angle = 0, height = 0, newLatitude = 0, newLongitude = 0;
     private TextView textView1, textView2, textView4;
     private final Context context = this;
     private String info, checkedItem;
-    private String[] splitedSubstring1, splitedSubstring2, splitedSubstring3;
+    private String[] splitedSubstring1, splitedSubstring2, splitedSubstring3, splitedSubstring4;
     private CalculateGeoDataCompass geoData;
     private InputMethodManager inputManager;
     private static int SUBACTIVITY_REQUESTCODE = 10;
@@ -51,6 +52,7 @@ public class CompassMethod extends Activity {
         enterLatitude = (EditText) findViewById(R.id.latitude);
         enterLongitude = (EditText) findViewById(R.id.longitude);
         enterDistance = (EditText) findViewById(R.id.edit_distance);
+        enterFloor = (EditText) findViewById(R.id.edit_floor);
         enterAngle = (EditText) findViewById(R.id.edit_angle);
         enterHeight = (EditText) findViewById(R.id.edit_height);
         textView1 = (TextView) findViewById(R.id.tv_result_new_latitude);
@@ -79,6 +81,7 @@ public class CompassMethod extends Activity {
                     distance = Double.parseDouble(enterDistance.getText().toString());
                     angle = Double.parseDouble(enterAngle.getText().toString());
                     height = Double.parseDouble(enterHeight.getText().toString());
+                    floor = Integer.parseInt(enterFloor.getText().toString());
 
                     geoData = new CalculateGeoDataCompass(latitude, longitude, distance, angle);
 
@@ -111,7 +114,7 @@ public class CompassMethod extends Activity {
 
                             try {
 
-                                geoDataXml = new GeoData(info, height, newLatitude, newLongitude);
+                                geoDataXml = new GeoData(info, height, newLatitude, newLongitude, floor);
                                 if (newDataFile.exists()){
                                     newGeoDataList = GeoDataLoad.loadGeoData(newDataFile);
                                 }
@@ -126,8 +129,7 @@ public class CompassMethod extends Activity {
                                 Log.e("Data FileSave", "speichern der newGeoData.mgd fehlgeschlagen");
                             }
 
-
-                            results.add("Info: " + info + "  Height: " + height + "\nLa: " + newLatitude + "\nLo: " + newLongitude);
+                            results.add("Info: " + info + " Height: " + height + " Floor: " + floor  + "\nLa: " + newLatitude + "\nLo: " + newLongitude);
 
                         } // End of onClick(DialogInterface dialog, int whichButton)
                     }); //End of alert.setPositiveButton
@@ -167,11 +169,13 @@ public class CompassMethod extends Activity {
 
                     checkedItem = data.getStringExtra("checked_item");
                     splitedSubstring1 = checkedItem.split("\nLo: ");
-                    splitedSubstring2 = splitedSubstring1[0].split("La: ");
-                    splitedSubstring3 = splitedSubstring2[0].split("Height: ");
+                    splitedSubstring2 = splitedSubstring1[0].split("\nLa: ");
+                    splitedSubstring3 = splitedSubstring2[0].split("Floor: ");
+                    splitedSubstring4 = splitedSubstring3[0].split("Height: ");
                     enterLatitude.setText(splitedSubstring2[1]);
                     enterLongitude.setText(splitedSubstring1[1]);
-                    enterAngle.setText(splitedSubstring3[1]);
+                    enterHeight.setText(splitedSubstring4[1]);
+                    enterFloor.setText(splitedSubstring3[1]);
                     enterDistance.setText("");
                     enterAngle.setText("");
                     textView1.setText("");
