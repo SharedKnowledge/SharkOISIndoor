@@ -11,6 +11,10 @@ import java.io.File;
 
 import de.berlin.htw.orinsy.vermessungs_tool.R;
 
+/**
+ * @author Maik M
+ */
+
 public class StartActivity extends Activity {
 
     Intent intent;

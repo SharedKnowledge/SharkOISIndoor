@@ -24,6 +24,10 @@ import de.berlin.htw.orinsy.vermessungs_tool.utils.GeoData;
 import de.berlin.htw.orinsy.vermessungs_tool.utils.GeoDataLoad;
 import de.berlin.htw.orinsy.vermessungs_tool.utils.GeoDataSave;
 
+/**
+ * @author Maik M
+ */
+
 public class ConstructionDrawingMethod extends Activity {
 
     private ArrayList<String> getResults, getSetupCoordinates;
@@ -79,21 +83,8 @@ public class ConstructionDrawingMethod extends Activity {
 
                 case R.id.btn_calculate_new_geodata:
 
-
-                    /**
-
-                     this.startLatitude = Double.parseDouble(this.tvLatitudeStart.getText().toString());
-                     this.startLongitude= Double.parseDouble(this.tvLongitudeStart.getText().toString());
-                     this.referenceLatitude = Double.parseDouble(this.tvLatitudeReference.getText().toString());
-                     this.referenceLongitude = Double.parseDouble(this.tvLongitudeReference.getText().toString());
-
-                     */
-
-
                     this.yAxis = Double.parseDouble(this.inputYAxis.getText().toString());
                     this.xAxis = Double.parseDouble(this.inputXAxis.getText().toString());
-
-                   // Log.d(MYLOG, "Y:   " + yAxis + "x: " + xAxis);
 
                     this.geoData = new CalculateGeoDataConstructionDrawing(this.startLatitude, this.startLongitude, this.referenceLatitude, this.referenceLongitude, this.yAxis, this.xAxis);
 
@@ -104,8 +95,6 @@ public class ConstructionDrawingMethod extends Activity {
 
                     this.newLatitude = Math.round(100000000.0 * this.newLatitude) / 100000000.0;
                     this.newLongitude = Math.round(100000000.0 * this.newLongitude) / 100000000.0;
-
-
 
                     this.inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     this.inputManager.hideSoftInputFromWindow((null == getCurrentFocus()) ? null : getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
@@ -136,21 +125,26 @@ public class ConstructionDrawingMethod extends Activity {
 
     public class AlertBuilder {
 
+        /**
+         * @brief constructor, creates and shows dialogue to add an information, shown in list entry
+         *
+         * @param context
+         */
+
+
         public AlertBuilder(Context context) {
 
             AlertDialog.Builder alert = new AlertDialog.Builder(context);
-            //  alert.setTitle("Alert Dialog With EditText"); //Set Alert dialog title here
-            alert.setMessage("Enter Info for Geo Data"); //Message here
 
-            // Set an EditText view to get user input
+            alert.setMessage("Enter Info for Geo Data");
+
             final EditText input = new EditText(context);
             input.setInputType(0x00000001);
             alert.setView(input);
 
             alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
-                    //You will get as string input data in this variable.
-                    // here we convert the input to a string and show in a toast.
+
                     ConstructionDrawingMethod.this.info = input.getEditableText().toString();
                     textView1.setText(String.valueOf(newLatitude));
                     textView2.setText(String.valueOf(newLongitude));
@@ -173,17 +167,16 @@ public class ConstructionDrawingMethod extends Activity {
                         Log.e("Data FileSave", "speichern der newGeoData.mgs fehlgeschlagen");
                     }
 
-
                     getResults.add("Info: " + info + " Height: " + height + " Floor: " + floor + "\nLa: " + newLatitude + "\nLo: " + newLongitude);
 
                 } // End of onClick(DialogInterface dialog, int whichButton)
-            }); //End of alert.setPositiveButton
+            });
             alert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
-                    // Canceled.
+
                     dialog.cancel();
                 }
-            }); //End of alert.setNegativeButton
+            });
             AlertDialog alertDialog = alert.create();
             alertDialog.show();
         }
@@ -221,17 +214,10 @@ public class ConstructionDrawingMethod extends Activity {
     public void setSetupCoordinates() {
 
         this.startLatitude = Double.parseDouble(this.getSetupCoordinates.get(0));
-       // this.setupCoordinates.add(0, getSetupCoordinates.get(0));
-        // Log.d(MYLOG, "" + this.startLatitude);
-        // Log.d(MYLOG, this.setupCoordinates.get(0));
         this.startLongitude = Double.parseDouble(getSetupCoordinates.get(1));
-       // this.setupCoordinates.add(1, getSetupCoordinates.get(1));
         this.referenceLatitude = Double.parseDouble(getSetupCoordinates.get(2));
-        //this.setupCoordinates.add(2, getSetupCoordinates.get(2));
         this.referenceLongitude = Double.parseDouble(getSetupCoordinates.get(3));
-        //this.setupCoordinates.add(3, getSetupCoordinates.get(3));
         this.height = Double.parseDouble(getSetupCoordinates.get(4));
-        //this.setupCoordinates.add(4, getSetupCoordinates.get(4));
         this.floor = Integer.parseInt(getSetupCoordinates.get(5));
         this.tvLatitudeStart.setText(String.valueOf(startLatitude));
         this.textView5.setVisibility(View.VISIBLE);

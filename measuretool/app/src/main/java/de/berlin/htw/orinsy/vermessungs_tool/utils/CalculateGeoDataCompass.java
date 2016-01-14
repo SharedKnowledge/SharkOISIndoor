@@ -1,7 +1,7 @@
 package de.berlin.htw.orinsy.vermessungs_tool.utils;
 
 /**
- * Created by Maik on 24/11/15.
+ * @author Maik M.
  */
 public class CalculateGeoDataCompass {
     
@@ -9,6 +9,15 @@ public class CalculateGeoDataCompass {
     private double longitude;
     private double distance;
     private double angle;
+
+    /**
+     *  @brief constructor
+     *
+     * @param latitude
+     * @param longitude
+     * @param distance
+     * @param angle
+     */
 
 
     public CalculateGeoDataCompass(double latitude, double longitude, double distance, double angle) {
@@ -18,6 +27,13 @@ public class CalculateGeoDataCompass {
         this.distance = distance;
         this.angle = angle;
     }
+
+    /**
+     * @brief method calculates new latitude
+     *
+     * @return new latitude
+     */
+
 
     public double newLatitude(){
 
@@ -32,6 +48,13 @@ public class CalculateGeoDataCompass {
         return this.latitude = this.latitude + changeInDecimalGrade;
 
     }
+
+    /**
+     * @brief method calculates new longitude
+     *
+     * @return new longitude
+     */
+
 
     public double newLongitude(){
 

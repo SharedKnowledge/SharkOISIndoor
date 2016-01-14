@@ -2,6 +2,10 @@ package de.berlin.htw.orinsy.vermessungs_tool.utils;
 
 import android.util.Log;
 
+/**
+ * @author Maik M.
+ */
+
 public class CalculateGeoDataConstructionDrawing  {
 
     private double latitudeStart;

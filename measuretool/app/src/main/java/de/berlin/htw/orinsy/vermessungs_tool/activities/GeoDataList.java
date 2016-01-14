@@ -24,11 +24,15 @@ import de.berlin.htw.orinsy.vermessungs_tool.utils.GeoDataLoad;
 import de.berlin.htw.orinsy.vermessungs_tool.utils.GeoDataSave;
 import de.berlin.htw.orinsy.vermessungs_tool.utils.Measurement;
 
+/**
+ * @author Maik M, ziera
+ */
+
 public class GeoDataList extends Activity {
 
     private ArrayAdapter<String> adapter;
     private Bundle subActivityExtras;
-    private ArrayList<String> results, getResults, getSetupCoordinates, setupCoordinates;
+    private ArrayList<String> setupCoordinates, getResults, getSetupCoordinates;
     private String checkedItem = "null";
     private ListView lvMain;
     private Intent intent;
@@ -51,11 +55,6 @@ public class GeoDataList extends Activity {
             getResults = subActivityExtras.getStringArrayList("newGeoDatas");
 
             method = false;
-
-            // for (int i = 0; i < getResults.size(); i++) {
-
-            //   results.add(getResults.get(i));
-            // }
         }
 
         if (subActivityExtras.containsKey("setup_coordinates")) {
@@ -65,15 +64,9 @@ public class GeoDataList extends Activity {
             getSetupCoordinates = subActivityExtras.getStringArrayList("setup_coordinates");
 
             method = true;
-            //   for (int i = 0; i < getSetupCoordinates.size(); i++) {
-
-            //     setupCoordinates.add(getSetupCoordinates.get(i));
-            // }
 
         }
 
-
-     //   results = new ArrayList<>();
         setupCoordinates = new ArrayList<>();
         newGeoDataList = new ArrayList<>();
         allGeoData = new ArrayList<>();
@@ -93,7 +86,6 @@ public class GeoDataList extends Activity {
         } catch (IOException ex){
             Log.e("Debug FileLoad", "Lesen der newGeoData.mgs fehlgeschlagen");
         }
-
 
         lvMain = (ListView) findViewById(R.id.lv_main);
         lvMain.setChoiceMode((ListView.CHOICE_MODE_SINGLE));
@@ -196,7 +188,4 @@ public class GeoDataList extends Activity {
         finish();
 
     }
-
-
-
 }

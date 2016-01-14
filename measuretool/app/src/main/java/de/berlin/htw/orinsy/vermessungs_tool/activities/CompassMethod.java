@@ -23,9 +23,11 @@ import de.berlin.htw.orinsy.vermessungs_tool.utils.CalculateGeoDataCompass;
 import de.berlin.htw.orinsy.vermessungs_tool.utils.GeoDataLoad;
 import de.berlin.htw.orinsy.vermessungs_tool.utils.GeoDataSave;
 
-public class CompassMethod extends Activity {
+/**
+ * @author Maik M
+ */
 
-    // Test for Bitbucket
+public class CompassMethod extends Activity {
 
     private ArrayList<String> results;
     private Intent intent;
@@ -42,7 +44,6 @@ public class CompassMethod extends Activity {
     private List<GeoData> newGeoDataList;
     private GeoData geoDataXml;
     private File newDataFile;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,18 +96,15 @@ public class CompassMethod extends Activity {
                     inputManager.hideSoftInputFromWindow((null == getCurrentFocus()) ? null : getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
                     AlertDialog.Builder alert = new AlertDialog.Builder(context);
-                    //  alert.setTitle("Alert Dialog With EditText"); //Set Alert dialog title here
-                    alert.setMessage("Enter Info for Geo Data"); //Message here
+                    alert.setMessage("Enter Info for Geo Data");
 
-                    // Set an EditText view to get user input
                     final EditText input = new EditText(context);
                     input.setInputType(0x00000001);
                     alert.setView(input);
 
                     alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
-                            //You will get as string input data in this variable.
-                            // here we convert the input to a string and show in a toast.
+
                             CompassMethod.this.info = input.getEditableText().toString();
                             textView1.setText(String.valueOf(newLatitude));
                             textView2.setText(String.valueOf(newLongitude));
@@ -132,13 +130,13 @@ public class CompassMethod extends Activity {
                             results.add("Info: " + info + " Height: " + height + " Floor: " + floor  + "\nLa: " + newLatitude + "\nLo: " + newLongitude);
 
                         } // End of onClick(DialogInterface dialog, int whichButton)
-                    }); //End of alert.setPositiveButton
+                    });
                     alert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
-                            // Canceled.
+
                             dialog.cancel();
                         }
-                    }); //End of alert.setNegativeButton
+                    });
                     AlertDialog alertDialog = alert.create();
                     alertDialog.show();
                     break;

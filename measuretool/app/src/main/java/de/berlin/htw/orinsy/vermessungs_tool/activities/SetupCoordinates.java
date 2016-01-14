@@ -15,6 +15,10 @@ import java.util.ArrayList;
 
 import de.berlin.htw.orinsy.vermessungs_tool.R;
 
+/**
+ * @author Maik M
+ */
+
 public class SetupCoordinates extends Activity {
 
     private EditText enterLongitudeStart, enterLatitudeStart, enterLongitudeReference, enterLatitudeReference;
@@ -50,58 +54,13 @@ public class SetupCoordinates extends Activity {
                 case R.id.btn_menu_height:
 
                     key = 1;
-
                     alertBuilder = new AlertBuilder(this);
-
-                    /**
-
-                    PopupMenu popup = new PopupMenu(this, findViewById(R.id.btn_menu_height));
-                    //Inflating the Popup using xml file
-                    popup.getMenuInflater().inflate(R.menu.popup_menu_height, popup.getMenu());
-
-                    //registering popup with OnMenuItemClickListener
-                    popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                        public boolean onMenuItemClick(MenuItem item) {
-
-                            SetupCoordinates.this.height = item.getTitle().toString();
-                            switch (item.getItemId()){
-                                case R.id.floor_0:
-                                    heightValue = 0.0;
-                                    break;
-                                case R.id.floor_1:
-                                    heightValue = 5.0;
-                                    break;
-                                case R.id.floor_2:
-                                    heightValue = 10.0;
-                                    break;
-                                case R.id.floor_3:
-                                    heightValue = 15.0;
-                                    break;
-                                case R.id.floor_4:
-                                    heightValue = 20.0;
-                                    break;
-                                case R.id.floor_5:
-                                    heightValue = 25.0;
-                                    break;
-                                case R.id.floor_6:
-                                    heightValue = 30.0;
-                                    break;
-                            }
-                            SetupCoordinates.this.showHeight.setText(String.valueOf(height));
-                            Toast.makeText(getBaseContext(), "You Clicked : " + height, Toast.LENGTH_SHORT).show();
-                            return true;
-                        }
-                    });
-                    popup.show();//showing popup menu
-
-                     */
                     break;
 
                 case R.id.btn_menu_floor:
 
                     key = 2;
                     alertBuilder = new AlertBuilder(this);
-
                     break;
 
                 case R.id.btn_ok:
@@ -129,28 +88,33 @@ public class SetupCoordinates extends Activity {
         }
     }
 
+
     public class AlertBuilder {
+
+        /**
+         * @brief constructor, creates and shows dialogue with different texts and functions, affected
+         *          by key value
+         *
+         * @param context
+         */
 
         public AlertBuilder(Context context) {
 
             AlertDialog.Builder alert = new AlertDialog.Builder(context);
-            //  alert.setTitle("Alert Dialog With EditText"); //Set Alert dialog title here
+
             if (SetupCoordinates.this.key == 1) {
-                alert.setMessage("Enter Height"); //Message here
+                alert.setMessage("Enter Height");
             }
             if (SetupCoordinates.this.key == 2) {
                 alert.setMessage("Enter Floor");
             }
 
-            // Set an EditText view to get user input
             final EditText input = new EditText(context);
             input.setInputType(0x00000003);
             alert.setView(input);
 
             alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
-                    //You will get as string input data in this variable.
-                    // here we convert the input to a string and show in a toast.
 
                     SetupCoordinates.this.info = input.getEditableText().toString();
 
@@ -168,13 +132,13 @@ public class SetupCoordinates extends Activity {
                     }
 
                 } // End of onClick(DialogInterface dialog, int whichButton)
-            }); //End of alert.setPositiveButton
+            });
             alert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
-                    // Canceled.
+
                     dialog.cancel();
                 }
-            }); //End of alert.setNegativeButton
+            });
             AlertDialog alertDialog = alert.create();
             alertDialog.show();
         }
