@@ -45,8 +45,8 @@ Hier sieht der Benutzer der App den akzeullen Standort und nach erfolgreichem La
 Die zugehörigen Daten werden in einer Liste dargestellt. Ein Klick auf einen Eintrag öffnet die dahinterliegende URL.
 Über ein Suchfeld in der Menuleiste kann bei langen Listen gefiltert werden. Auch diese Ergebnisse sind anklickbar.
 
-![Tab1](screenshots/tab1_leer.png)
-  
+<img src="screenshots/tab1_leer.png" alt="Drawing" style="width: 200px;"/>
+
 ### Admin Tab  
 In diesem Tab kann der Benutzer die Daten die zu dem aktuellen Beacon in der DB liegen bearbeiten.
 Er kann ein Thema, ein Autor und einen Inhalt in der App eingeben, um diese dann mit der Geo-Information als Schlüssel in die Sharkdatenbank laden.  
