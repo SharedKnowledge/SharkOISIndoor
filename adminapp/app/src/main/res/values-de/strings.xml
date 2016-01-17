@@ -32,7 +32,7 @@
     <!-- BLESniffer -->
     <string name="bluetooth_not_enabled">Bluetooth ist leider nicht aktiviert. Wir können keine Beacons für dich finden. Bitte aktiviere dein Bluetooth.</string>
     <string name="bluetooth_safe_enable">Bluetooth sicher aktivieren</string>
-    <string name="location_enable">GPS ist leider nicht aktiviert. Ab Android Marshmellow, benötigen wir es zusätzlich um die BLE-Beacons zu finden. Bitte aktiviere dein GPS.</string>
+    <string name="location_enable">GPS ist leider nicht aktiviert. Leider benötigen wir es zusätzlich um die BLE-Beacons zu finden. Bitte aktiviere dein GPS.</string>
     <string name="open_location_settings">Öffne Ortungseinstellungen</string>
     <string name="no_propper_geos_1">Keine</string>
     <string name="no_propper_geos_2">korrekten</string>
