@@ -2,6 +2,7 @@ package de.berlin.htw.oisindoor.userapp.positioning;
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.ScanCallback;
 import android.content.Context;
@@ -43,12 +44,15 @@ public abstract class BTLEService extends Service {
     static final int ACTION_START = 78;
     static final int ACTION_STOP = 79;
     static final Charset UTF8 = Charset.forName("UTF-8");
+
+    int currentRSSI;
+    BluetoothDevice currentBeacon;
     BluetoothAdapter bluetoothAdapter;
 
     @Override
     public void onCreate() {
-        super.onCreate();
         bluetoothAdapter = ((BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE)).getAdapter();
+        currentRSSI = Integer.MIN_VALUE;
     }
 
     @Nullable
@@ -86,6 +90,23 @@ public abstract class BTLEService extends Service {
         stopSelf();
     }
 
+    boolean isANewBeacon(BluetoothDevice device, int rssi) {
+        if (currentBeacon == null) { // first signal
+            currentBeacon = device;
+            currentRSSI = rssi;
+            return true;
+        } else if (currentBeacon.equals(device)) { // correct rssi strength of the current device
+            currentRSSI = rssi;
+        } else if (currentRSSI < rssi) { // a new device is closer
+            currentBeacon = device;
+            currentRSSI = rssi;
+            return true;
+            //} else { // a new device is further
+            // no need
+        }
+        return false;
+    }
+
     void sendLocationToActivity(String url){
         Intent i = new Intent(RESPONSE_LOCATION);
         i.putExtra(RESPONSE_LOCATION_VALUE, url);
@@ -98,7 +119,7 @@ public abstract class BTLEService extends Service {
         LocalBroadcastManager.getInstance(this).sendBroadcast(i);
     }
 
-    String errorCodeToString(int code) {
+    static String errorCodeToString(int code) {
         switch (code){
             case ScanCallback.SCAN_FAILED_ALREADY_STARTED:
                 return "SCAN_FAILED_ALREADY_STARTED";

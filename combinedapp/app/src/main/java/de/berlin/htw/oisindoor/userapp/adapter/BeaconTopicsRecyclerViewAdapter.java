@@ -23,8 +23,7 @@ public class BeaconTopicsRecyclerViewAdapter extends RecyclerView.Adapter<Beacon
     private final PositioningFragment.TopicListener callback;
 
     public BeaconTopicsRecyclerViewAdapter(PositioningFragment.TopicListener callback) {
-        this.data = new ArrayList<>();
-        this.callback = callback;
+        this(new ArrayList<Topic>(), callback);
     }
 
     public BeaconTopicsRecyclerViewAdapter(List<Topic> data, PositioningFragment.TopicListener callback) {
