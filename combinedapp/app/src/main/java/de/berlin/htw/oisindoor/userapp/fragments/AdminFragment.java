@@ -206,7 +206,7 @@ public class AdminFragment extends Fragment implements IPositioning {
             uploadData.add(author.toString());
             uploadData.add(content.toString());
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle(R.string.uploud_information);
+            builder.setTitle(R.string.upload_information);
             builder.setMessage("" +
                     getResources().getString(R.string.latitude_TXT) + ": " + sLatitude + "\n" +
                     getResources().getString(R.string.longitude_TXT) + ": " + sLongitude + "\n" +
@@ -274,7 +274,7 @@ public class AdminFragment extends Fragment implements IPositioning {
     @Override
     public void updatePosition(@NonNull String url) {
         Log.d(TAG, "updatePosition: " + url);
-        List<String> geos = Util.readPropperGEO(url);
+        List<String> geos = Util.readPropperGEO(getResources(), url);
         latitude.setText(geos.get(0));
         longitude.setText(geos.get(1));
         altitude.setText(geos.get(2));
