@@ -450,7 +450,7 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
                     @Override
                     public void onResult(ArrayList<Topic> data) {
                         f0.updateTopics(data);
-                        initSearchView(Topic.ITEMS);
+                        initSearchView(data);
                         hasBeaconFound = true;
                     }
                 });

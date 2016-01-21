@@ -8,7 +8,7 @@
 * Was noch fehlt
   
 ***
-[Sources directlink](https://github.com/SharedKnowledge/SharkOISIndoor/tree/master/combinedapp/app/src/main/java)
+[Sources directlink](https://github.com/SharedKnowledge/SharkOISIndoor/tree/master/combinedapp/app/src/main/java/de/berlin/htw/oisindoor/userapp)
 
 ## Systemvoraussetzungen 
 * Minumum SDK 18 [since Android Jelly Bean (MR2)](https://developer.android.com/about/versions/android-4.3.html)
@@ -47,7 +47,7 @@ Hier sieht der Benutzer der App den aktuellen Standort und (nach erfolgreichem L
 Die zugehörigen Daten werden in einer Liste dargestellt. Ein Klick auf einen Eintrag öffnet die dahinterliegende URL.
 Über ein Suchfeld in der Menuleiste kann bei langen Listen gefiltert werden. Auch diese Ergebnisse sind anklickbar.
 
-![alt Drawing](screenshots/tab1_leer.png "Drawing")
+![alt Drawing](screenshots/small/tab1_leer.png "Drawing") ![alt Drawing](screenshots/small/tab1_voll.png "Drawing") ![alt Drawing](screenshots/small/tab1_suche.png "Drawing")
 
 ### Admin Tab  
 In diesem Tab kann der Benutzer die Daten die zu dem aktuellen Beacon in der DB liegen bearbeiten.
