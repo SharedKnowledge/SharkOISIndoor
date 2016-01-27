@@ -57,6 +57,7 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
     private static final int REQUEST_IS_NETWORK_ENABLED = 780;
 
     private boolean hasBeaconFound = false;
+    private boolean isDialogShown = false;
     private ProgressDialog dialog;
     private BTLEReceiver btleReceiver;
     private IntentFilter filter;
@@ -289,7 +290,7 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
 
     private void startSearchingForBeacons() {
         Log.d(TAG, "startSearchingForBeacons: " + hasBeaconFound);
-        if (isBluetoothEnabled && isLocationEnabled && isNetworkAvailable) {
+        if (isBluetoothEnabled && isLocationEnabled && isNetworkAvailable && !isDialogShown) {
             Log.d(TAG, "startSearchingForBeacons: start");
             BTLEService.startService(this);
             if (!hasBeaconFound) {
@@ -364,12 +365,14 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
         dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                isDialogShown = false;
                 stopSearching(true);
             }
         });
         dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         dialog.setIndeterminate(true);
         dialog.show();
+        isDialogShown = true;
     }
 
     /**
