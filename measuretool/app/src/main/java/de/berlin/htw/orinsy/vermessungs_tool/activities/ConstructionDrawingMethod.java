@@ -126,14 +126,17 @@ public class ConstructionDrawingMethod extends Activity {
         }
     }
 
+    /**
+     * @brief inner class creates and shows dialogue to add an information, shown in list entry
+     */
+
     public class AlertBuilder {
 
         /**
-         * @brief constructor, creates and shows dialogue to add an information, shown in list entry
+         * @brief constructor
          *
          * @param context
          */
-
 
         public AlertBuilder(Context context) {
 
