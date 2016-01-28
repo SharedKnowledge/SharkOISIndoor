@@ -133,7 +133,7 @@ public class CompassMethod extends Activity {
 
                             results.add("Info: " + info + " Height: " + height + " Floor: " + floor  + "\nLa: " + newLatitude + "\nLo: " + newLongitude);
 
-                        } // End of onClick(DialogInterface dialog, int whichButton)
+                        }
                     });
                     alert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
