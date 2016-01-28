@@ -195,8 +195,7 @@ public class BLESniffer implements Runnable {
      * found before. In case the current one is closer, it will print information about the ble-device
      * on log-level concerning name, mac-address and the broadcasted service data ( Service-Charesteristics
      * with String containing the geos ). In addition the method will display the longitude, latitude and
-     * altitude in the given EditTexts of this class. @see
-     * Moreover the
+     * altitude in the given EditTexts of this class.
      * The ScanCallback will only use ScanCallback.onScanResult.
      */
     private void buildScanCallbackAPI21(){
