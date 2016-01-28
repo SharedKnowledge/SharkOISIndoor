@@ -14,7 +14,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by Max on 19.12.2015.
+ * Version 21+ Impl of {@link BTLEService}
+ * @author Max M
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class BTLEv21Service extends BTLEService {
@@ -59,10 +60,11 @@ public class BTLEv21Service extends BTLEService {
             return;
         }
         stopScanning();
+        // TODO: check beacon whitelist
         Log.d(TAG, "startSearching");
         List<ScanFilter> l = new ArrayList<>();
-        l.add(new ScanFilter.Builder().setDeviceAddress("78:A5:04:4A:58:0F").build());
-        l.add(new ScanFilter.Builder().setDeviceAddress("78:A5:04:4A:28:88").build());
+        // l.add(new ScanFilter.Builder().setDeviceAddress("78:A5:04:4A:58:0F").build());
+        // l.add(new ScanFilter.Builder().setDeviceAddress("78:A5:04:4A:28:88").build());
         bluetoothAdapter.getBluetoothLeScanner().startScan(l, new ScanSettings.Builder().build(), scanCallback);
     }
 

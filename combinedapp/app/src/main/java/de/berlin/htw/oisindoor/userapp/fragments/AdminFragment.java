@@ -30,6 +30,10 @@ import de.berlin.htw.oisindoor.userapp.R;
 import de.berlin.htw.oisindoor.userapp.shark.SharkUploader;
 import de.berlin.htw.oisindoor.userapp.util.Util;
 
+/**
+ * Fragment, which contains a statusbar with the current locations and inputfields to
+ * input data for uploading these to the Shark-DB
+ */
 public class AdminFragment extends Fragment implements IPositioning {
     private static final String TAG = AdminFragment.class.getSimpleName();
 

@@ -8,24 +8,32 @@ import java.util.ArrayList;
 import de.berlin.htw.oisindoor.userapp.model.Topic;
 
 /**
- * Created by Max on 30.11.2015.
+ * Class which does send the read URL (the location info) to the Shark-DB Server</br>
+ * Result is ja List of {@link Topic Topics}</br>
+ * To do not block the UI, it is implemented a AsyncTask
+ * @author Max M
  */
-public class SharkDownloader extends AsyncTask<String, Void, ArrayList<Topic>> {
+public class SharkDownloader extends AsyncTask<Void, Void, ArrayList<Topic>> {
     private String readBeaconLink;
     private GenericCallback<ArrayList<Topic>> callback;
 
+    /**
+     * Creates a Instance of the SharkDownloader
+     * @param readBeaconLink - The read location info (latitude, longitude, altitude)
+     * @param callback - A Callback, which get informed when the Result are there
+     */
     public SharkDownloader(@NonNull String readBeaconLink, @NonNull GenericCallback<ArrayList<Topic>> callback) {
         this.readBeaconLink = readBeaconLink;
         this.callback = callback;
     }
 
     /**
-     *  TODO: make magic calls insteadof fake the results
-     * @param params
-     * @return
+     *  TODO: make magic calls instead of fake the results
+     * @param params - nothing...
+     * @return - A List of topics related to the Location
      */
     @Override
-    protected ArrayList<Topic> doInBackground(String... params) {
+    protected ArrayList<Topic> doInBackground(Void... params) {
         try {
             Thread.sleep(3_000);
         } catch (InterruptedException e) {}

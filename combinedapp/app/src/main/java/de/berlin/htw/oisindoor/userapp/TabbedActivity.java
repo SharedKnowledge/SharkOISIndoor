@@ -50,10 +50,14 @@ import de.berlin.htw.oisindoor.userapp.shark.SharkDownloader;
 import de.berlin.htw.oisindoor.userapp.util.Util;
 
 /**
- * Main Klasse für die App
- * Es wird eine TabView erzeugt in der, die aktuell zwei Fragments {@link PositioningFragment} und
- * {@link AdminFragment} dargestellt werden.
- * Diese Activity
+ * Main Classe for the OIS Indoor app
+ * The maincontent is a tabview, which contains a {@link PositioningFragment} and an
+ * {@link AdminFragment}
+ * Via a {@link FloatingActionButton}, the user can restart the bluetooth signals searching
+ *
+ * @see BTLEService
+ *
+ * @author  Max M
  */
 public class TabbedActivity extends AppCompatActivity implements AdminFragment.OnFragmentInteractionListener {
     /**
@@ -81,7 +85,10 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
      * member for a dialog, which is only shown on the first searching {@see #showSearchingDialog}
      */
     private ProgressDialog dialog;
-    private boolean isDialogShown = false;
+    /**
+     * indicates, if it's the first search, so we show the dialog
+     */
+    private boolean hasBeaconFound = false;
     /**
      * reference to a {@link de.berlin.htw.oisindoor.userapp.TabbedActivity.BTLEReceiver}
      */
@@ -379,7 +386,7 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
      */
     private void startSearchingForBeacons() {
         Log.d(TAG, "startSearchingForBeacons: " + hasBeaconFound);
-        if (isBluetoothEnabled && isLocationEnabled && isNetworkAvailable && !isDialogShown) {
+        if (isBluetoothEnabled && isLocationEnabled && isNetworkAvailable && !hasBeaconFound) {
             Log.d(TAG, "startSearchingForBeacons: start");
             BTLEService.startService(this);
             if (!hasBeaconFound) {
@@ -389,6 +396,12 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
         }
     }
 
+    /**
+     * Init the Searchview in the toolbar</br>
+     * Currently it will filter the title of the topics
+     * Clicks on a search result will open the url
+     * @param topicList - list of topics received from the shark-db
+     */
     private void initSearchView(final List<Topic> topicList) {
         final ArrayList<Topic> filteredTopics = new ArrayList<>(topicList.size());
         suggestionAdapter = new SimpleCursorAdapter(
@@ -457,14 +470,13 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
         dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                isDialogShown = false;
                 stopSearching(true);
             }
         });
         dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         dialog.setIndeterminate(true);
         dialog.show();
-        isDialogShown = true;
+        hasBeaconFound = true;
     }
 
     /**
@@ -478,6 +490,12 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
 
     /* Classes */
 
+    /**
+     * A FragmentPagerAdapter, which handles the Tabs
+     * The used Fragment must be created one and reused in #getItem, because the every time
+     * new created fragments will not handle the lifecycle correctly
+     *
+     */
     private class SectionsPagerAdapter extends FragmentPagerAdapter {
         private PositioningFragment p = PositioningFragment.newInstance();
         private AdminFragment a = AdminFragment.newInstance();
@@ -528,7 +546,7 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
                     break;
 
                 case BTLEService.RESPONSE_ERROR:
-                    final String errorMsg = intent.getStringExtra(BTLEService.RESPONSE_ERROR_VALUE)
+                    final String errorMsg = intent.getStringExtra(BTLEService.RESPONSE_ERROR_VALUE);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {

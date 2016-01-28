@@ -16,7 +16,9 @@ import de.berlin.htw.oisindoor.userapp.fragments.PositioningFragment;
 import de.berlin.htw.oisindoor.userapp.model.Topic;
 
 /**
- * Created by Max on 26.11.2015.
+ * RecyclerView.Adapter which handles the List of Topics shown in the {@link de.berlin.htw.oisindoor.userapp.TabbedActivity}
+ *
+ * @author Max M
  */
 public class BeaconTopicsRecyclerViewAdapter extends RecyclerView.Adapter<BeaconTopicsRecyclerViewAdapter.ViewHolder> {
     private final List<Topic> data;

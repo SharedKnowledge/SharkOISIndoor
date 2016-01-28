@@ -1,7 +1,8 @@
 package de.berlin.htw.oisindoor.userapp.shark;
 
 /**
- * Created by Max on 30.11.2015.
+ * Callback Interface with one generic method
+ * @author Max M
  */
 public interface GenericCallback<T>  {
    void onResult(T data);

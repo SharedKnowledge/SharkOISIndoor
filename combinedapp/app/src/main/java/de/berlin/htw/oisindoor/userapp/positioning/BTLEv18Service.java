@@ -5,7 +5,8 @@ import android.bluetooth.BluetoothDevice;
 import android.util.Log;
 
 /**
- * Created by Max on 07.01.2016.
+ * Version 18+ Impl of {@link BTLEService}
+ * @author Max M
  */
 public class BTLEv18Service extends BTLEService {
     private static final String TAG = BTLEv18Service.class.getSimpleName();
@@ -14,7 +15,6 @@ public class BTLEv18Service extends BTLEService {
         @Override
         public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
             Log.d(TAG, "onScanResult: " + device.getName() + " " + device.getAddress() + " (" + rssi +")");
-
             if (isANewBeacon(device, rssi)) {
                 String beaconContent = new String(scanRecord, UTF8).trim();
                 Log.d(TAG, device.getName() + " " + device.getAddress() + " : " + beaconContent);

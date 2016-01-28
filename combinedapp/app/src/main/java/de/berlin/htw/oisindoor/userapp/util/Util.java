@@ -23,6 +23,10 @@ import java.util.regex.Pattern;
 
 import de.berlin.htw.oisindoor.userapp.R;
 
+/**
+ * helpful methods
+ * @author Max M
+ */
 public class Util {
     private static boolean isDialogShown;
 
@@ -40,7 +44,7 @@ public class Util {
 
     public static boolean isLocationProviderEnabled(Context context) {
         LocationManager lm = getLocationManager(context);
-        return lm.isProviderEnabled(LocationManager.GPS_PROVIDER) || lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        return lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
     }
 
     public static boolean isInternetAvailable(Context context) {
@@ -61,8 +65,18 @@ public class Util {
         void onNegativeButtonPressed();
     }
 
-    public static void showDialog(@NonNull Context c, @StringRes int titleID, @StringRes int messageID, @DrawableRes int iconID,
-                                  @NonNull final DialogCallback callback) {
+    /**
+     * show a Dialog, with a Msg, Title, Image</br>
+     * clicks on <i>okay</i> or <i>cancel</i> will be received in the callback</br>
+     * only one dialog can be shown at the same time, if a dialog is already present, nothing happens
+     * @param c - Context of the current activity
+     * @param titleID - StringResource of a Title
+     * @param messageID - StringResource of a Message
+     * @param iconID - DrawableResource of an Image
+     * @param callback - A Callback implementation, which tracks click on okay or cancel
+     */
+    public static void showDialog(@NonNull Context c, @StringRes int titleID, @StringRes int messageID,
+                                  @DrawableRes int iconID, @NonNull final DialogCallback callback) {
         if (isDialogShown) {
             return;
         }
@@ -143,6 +157,7 @@ public class Util {
     }
 
     private Util() {
+        throw new RuntimeException("no instances");
     }
 
 }

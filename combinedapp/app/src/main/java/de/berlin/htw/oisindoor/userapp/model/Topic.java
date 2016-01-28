@@ -6,7 +6,9 @@ import android.os.Parcelable;
 import java.util.ArrayList;
 
 /**
- * Created by Max on 26.11.2015.
+ * Class, which represents a Topic receives from the Shark-DB
+ * for Testing, it's contain a list of fake topics {@link #ITEMS}
+ * @author Max M
  */
 public class Topic implements Parcelable {
     public static final ArrayList<Topic> ITEMS = new ArrayList<>();
