@@ -13,10 +13,14 @@ public class BTLEv18Service extends BTLEService {
     private BluetoothAdapter.LeScanCallback scanCallback = new BluetoothAdapter.LeScanCallback() {
         @Override
         public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
-            String beaconContent = new String(scanRecord, UTF8).trim();
-            Log.d(TAG, device.getName() + " " + device.getAddress() + " : " + beaconContent);
-            sendLocationToActivity(beaconContent);
-            stop();
+            Log.d(TAG, "onScanResult: " + device.getName() + " " + device.getAddress() + " (" + rssi +")");
+
+            if (isANewBeacon(device, rssi)) {
+                String beaconContent = new String(scanRecord, UTF8).trim();
+                Log.d(TAG, device.getName() + " " + device.getAddress() + " : " + beaconContent);
+                sendLocationToActivity(beaconContent);
+            }
+
         }
     };
 

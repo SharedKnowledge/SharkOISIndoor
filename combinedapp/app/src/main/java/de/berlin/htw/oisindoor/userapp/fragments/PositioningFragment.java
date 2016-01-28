@@ -85,7 +85,7 @@ public class PositioningFragment extends Fragment implements IPositioning {
     @Override
     public void updatePosition(@NonNull String url){
         Log.d(TAG, "updatePosition " + url);
-        List<String> t = Util.readPropperGEO(url);
+        List<String> t = Util.readPropperGEO(getResources(), url);
         latText.setText(t.get(0));
         lonText.setText(t.get(1));
         altText.setText(t.get(2));

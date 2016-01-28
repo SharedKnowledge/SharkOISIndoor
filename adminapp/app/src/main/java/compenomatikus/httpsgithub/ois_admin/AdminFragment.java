@@ -103,6 +103,7 @@ public class AdminFragment extends Fragment {
             bleButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                   // snifferHandler.post(bleSniffer);
                     if (!isListeing) {
                         //Checks the build version of the app, if lollipop or higher, use new permission model
                         if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {

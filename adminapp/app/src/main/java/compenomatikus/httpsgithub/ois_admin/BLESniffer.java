@@ -1,5 +1,6 @@
 package compenomatikus.httpsgithub.ois_admin;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Service;
@@ -29,9 +30,35 @@ import java.util.regex.Pattern;
  * BLESniffer is responsible for scanning all nearby ble-devices and
  * trying to read their broadcast data. In case the broadcast data contains
  * geo information, BLESniffer will show this data on screen. However, this will
- * only happen if the current found ble-device is the closest to the mobile.
+ * only happen if the current found ble-device is the closest to the mobile. <br>
+ * How to use: ( Not including permission handling )<br>
+ *     <pre>
+ *         <code>
+ *             private Handler snifferHandler = new Handler(Looper.getMainLooper()); <br>
+ *             private BLESniffer bleSniffer; <br>
+ *             private EditText altitude;   <br>
+ *             private EditText latidude;   <br>
+ *             private EditText longitude;  <br>
+ *             private ImageButton bleButton; <br>
+ *             // or protected void onCreate(...) <br>
+ *             //@Override
+ *             public View onCreateView(...) {<br>
+ *               initEditTexts();
+ *               bleButton = ( ImageButton ) v.findViewById(R.id.bluetooth_BTN);
+ *               bleSniffer = new BLESniffer(getActivity(), latidude, longitude, altitude, bleButton);
+ *               handler.post(bleSniffer);
+ *             }
+ *             //@Override
+ *             public void onStop() {
+ *               bleSniffer.stop();
+ *               snifferHandler.removeCallbacks(bleSniffer);
+ *               super.onStop();
+ *             }
+ *
+ *         </code>
+ *     </pre>
  * @since Android API 18
- * @version 1.0
+ * @version 1.1
  * @author thor Stefan Jagdmann
  */
 
@@ -77,10 +104,21 @@ public class BLESniffer implements Runnable {
      */
     private LocationManager locationManager = null;
     /**
-     * RSSI ( Received signal strength indication ). Used to check the signal strength of a found
-     * ble device.
+     * Indicates the RSSI value of an old device
      */
-    private int rssi = -1000;
+    private int oldRssi = -1000;
+    /**
+     * Indicates if the current SDK is 21 or higher
+     */
+    private final int API_21 = 1;
+    /**
+     * Indikates if the current SDK is less than 21
+     */
+    private final int API_18 = 0;
+    /**
+     * Indicates the sdk of the device ( API_18/21 )
+     */
+    private int buildVersion;
     /**
      * The classname
      */
@@ -110,32 +148,44 @@ public class BLESniffer implements Runnable {
         bluetoothManager = (BluetoothManager) activity.getSystemService(Context.BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
         locationManager = (LocationManager) activity.getSystemService(Service.LOCATION_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            buildVersion = API_21;
             buildScanCallbackAPI21();
-        else
+        } else {
+            buildVersion = API_18;
             buildScanCallbackAP18();
+        }
     }
 
-    /*
+   /*
      *  Will start the scan for ble-devices if Bluetooth and the location service of the mobile are
-     *  enabled. If one of them is not enabled, it will call enableBluetooth() [and  enableLocation().]
+     *  enabled. If one of them is not enabled, it will call enableBluetooth() [and  enableLocation() -> API_21]
      */
+    @SuppressLint("NewApi")
     @Override
     public void run() {
-        if((locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && bluetoothAdapter.isEnabled())) {
-            Log.i(TAG, "Starting beacon-scan.");
-            if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
-                bluetoothAdapter.getBluetoothLeScanner().startScan(scanCallback);
-                bleButton.setImageResource(R.drawable.bluetooth_on);
-            } else {
-                //noinspection deprecation
-                bluetoothAdapter.startLeScan(leScanCallback);
-                bleButton.setImageResource(R.drawable.bluetooth_on);
-            }
-        } else {
-            if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1)
-                enableLocation();
-            enableBluetooth();
+        Log.i(TAG, "Starting beacon-scan.");
+        switch (buildVersion) {
+            case API_21:
+                if ((locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && bluetoothAdapter.isEnabled())) {
+                    bluetoothAdapter.getBluetoothLeScanner().startScan(scanCallback);
+                    bleButton.setImageResource(R.drawable.bluetooth_on);
+                } else {
+                    enableLocation();
+                    enableBluetooth();
+                }
+                break;
+            case API_18:
+                if ( bluetoothAdapter.isEnabled() ) {
+                    bluetoothAdapter.startLeScan(leScanCallback);
+                    bleButton.setImageResource(R.drawable.bluetooth_on);
+                } else {
+                    enableBluetooth();
+                }
+                break;
+            default:
+                Log.e(TAG, "JACK! WHAT SDK IS THAT? A SDK FOR ANTS?!?!");
+                break;
         }
     }
 
@@ -145,8 +195,7 @@ public class BLESniffer implements Runnable {
      * found before. In case the current one is closer, it will print information about the ble-device
      * on log-level concerning name, mac-address and the broadcasted service data ( Service-Charesteristics
      * with String containing the geos ). In addition the method will display the longitude, latitude and
-     * altitude in the given EditTexts of this class. @see
-     * Moreover the
+     * altitude in the given EditTexts of this class.
      * The ScanCallback will only use ScanCallback.onScanResult.
      */
     private void buildScanCallbackAPI21(){
@@ -154,31 +203,35 @@ public class BLESniffer implements Runnable {
             scanCallback = new ScanCallback() {
                 @Override
                 public void onScanResult(int callbackType, ScanResult result) {
-                    String beaconContent = "";
-                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
-                        if (checkRange(result.getRssi())) {
-                            //noinspection ConstantConditions
-                            Log.i(TAG, "Found: " + result.getScanRecord().getDeviceName());
-                            Log.i(TAG, "MAC: " + result.getDevice());
-                            Log.i(TAG, "Service Data: ");
-                            Map<ParcelUuid, byte[]> serviceData = result.getScanRecord().getServiceData();
-                            for (ParcelUuid parcelUuid : serviceData.keySet()) {
-                                beaconContent = new String(serviceData.get(parcelUuid), Charset.defaultCharset()).trim();
-                                Log.d(TAG, parcelUuid.getUuid() + " " + beaconContent);
-                            }
-                            List<String> geos = readPropperGEO(beaconContent);
-                            longitude.setText(geos.get(0));
-                            latidue.setText(geos.get(1));
-                            altitude.setText(geos.get(2));
+                String beaconContent = "";
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+                    if (checkRange(result.getRssi())) {
+                        //noinspection ConstantConditions
+                        Log.i(TAG, "Found: " + result.getScanRecord().getDeviceName());
+                        Log.i(TAG, "MAC: " + result.getDevice());
+                        Log.i(TAG, "Service Data: ");
+                        Map<ParcelUuid, byte[]> serviceData = result.getScanRecord().getServiceData();
+                        for (ParcelUuid parcelUuid : serviceData.keySet()) {
+                            beaconContent = new String(serviceData.get(parcelUuid), Charset.defaultCharset()).trim();
+                            Log.d(TAG, parcelUuid.getUuid() + " " + beaconContent);
                         }
+                        final List<String> geos = readPropperGEO(beaconContent);
+                        activity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                latidue.setText(geos.get(0));
+                                longitude.setText(geos.get(1));
+                                altitude.setText(geos.get(2));
+                            }
+                        });
                     }
+                }
                 }
             };
         }
     }
 
     /**
-     * NOT TESTED!!! MAY NOT WORK. HAVE NO API 18 DEVICE. SHOULD PRINT SAMPLE-DATA.
      * Method to build a new ScanCallback for devices with an API between 18 and 20.
      * It will print information about a found ble-device on log-level concerning name, mac-address
      * and the broadcasted service data ( Service-Charesteristics with String containing the geos ).
@@ -191,19 +244,24 @@ public class BLESniffer implements Runnable {
         leScanCallback = new BluetoothAdapter.LeScanCallback() {
             @Override
             public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
-                String deviceName = device.getName();
-                if ( checkRange(rssi)) {
-                    if( deviceName == null )
-                        Log.i(TAG, "Found device with no name.");
-                    else
-                        Log.i(TAG, "Found: " + device.getName() );
-                    Log.i(TAG, "MAC: " + device.getAddress());
-                    String bytes = new String(scanRecord, Charset.defaultCharset());
-                    List<String> geos = readPropperGEO(bytes);
-                    longitude.setText(geos.get(0));
-                    latidue.setText(geos.get(1));
-                    altitude.setText(geos.get(2));
-                }
+            String deviceName = device.getName();
+            if ( checkRange(rssi)) {
+                if( deviceName == null )
+                    Log.i(TAG, "Found device with no name.");
+                else
+                    Log.i(TAG, "Found: " + device.getName() );
+                Log.i(TAG, "MAC: " + device.getAddress());
+                String bytes = new String(scanRecord, Charset.defaultCharset());
+                final List<String> geos = readPropperGEO(bytes);
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        latidue.setText(geos.get(0));
+                        longitude.setText(geos.get(1));
+                        altitude.setText(geos.get(2));
+                    }
+                });
+            }
             }
         };
     }
@@ -219,17 +277,19 @@ public class BLESniffer implements Runnable {
      * @return  True if given rssi is lesser than the one before. False if not or equal.
      */
     private boolean checkRange(int rssi){
-        if(this.rssi > rssi ) {
-            Log.i(TAG, "New signal strength " + rssi + " is further [ OLD: " + this.rssi + "]");
-            return false;
-        } else if ( this.rssi == rssi ) {
-            Log.i(TAG, "New signal strength " + rssi + " is the same. [ OLD: " + this.rssi + "]");
+        if(oldRssi < rssi ) {
+            Log.i(TAG, "New signal strength " + rssi + " is closer [ OLD: " + oldRssi + " ]");
+            oldRssi = rssi;
+            return true;
+        } else if ( oldRssi == rssi ) {
+            Log.i(TAG, "New signal strength " + rssi + " is same [ OLD: " + oldRssi + " ]");
+            oldRssi = rssi;
             return false;
         }
         else {
-            Log.i(TAG, "New signal strength " + rssi + " is closer [ OLD: " + this.rssi + "]");
-            this.rssi = rssi;
-            return true;
+            Log.i(TAG, "New signal strength " + rssi + " is further [ OLD: " + oldRssi + " ]");
+            oldRssi = rssi;
+            return false;
         }
     }
 
@@ -241,13 +301,17 @@ public class BLESniffer implements Runnable {
      */
     public void stop(){
         Log.w(TAG, "Stopped ble-scan");
-        if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
-            bluetoothAdapter.getBluetoothLeScanner().stopScan(scanCallback);
-            bleButton.setImageResource(R.drawable.bluetooth_off);
-        } else {
-            //noinspection deprecation
-            bluetoothAdapter.stopLeScan(leScanCallback);
-            bleButton.setImageResource(R.drawable.bluetooth_off);
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                bluetoothAdapter.getBluetoothLeScanner().stopScan(scanCallback);
+                bleButton.setImageResource(R.drawable.bluetooth_off);
+            } else {
+                //noinspection deprecation
+                bluetoothAdapter.stopLeScan(leScanCallback);
+                bleButton.setImageResource(R.drawable.bluetooth_off);
+            }
+        } catch ( NullPointerException npe ) {
+            npe.printStackTrace();
         }
     }
 
@@ -347,8 +411,10 @@ public class BLESniffer implements Runnable {
         if ( matched == 3 )
             return results;
         else {
-            return new ArrayList<String>(){{ add(R.string.no_propper_geos_1 + "");
-                add(R.string.no_propper_geos_2 + ""); add(R.string.no_propper_geos_3 + ""); }};
+            return new ArrayList<String>(){{
+                add(activity.getResources().getString(R.string.no_propper_geos_1));
+                add(activity.getResources().getString(R.string.no_propper_geos_2));
+                add(activity.getResources().getString(R.string.no_propper_geos_3)); }};
         }
     }
 }

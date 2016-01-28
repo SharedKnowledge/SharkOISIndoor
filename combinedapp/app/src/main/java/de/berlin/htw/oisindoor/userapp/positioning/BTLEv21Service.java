@@ -22,16 +22,19 @@ public class BTLEv21Service extends BTLEService {
 
     private ScanCallback scanCallback = new ScanCallback() {
         @Override
-        public void onScanResult(int callbackType, ScanResult result) { // 78:A5:04:4A:58:0F und
-            Log.d(TAG, "onScanResult1: " + result.getDevice().getName() + " " + result.getDevice().getAddress());
-            Map<ParcelUuid, byte[]> t = result.getScanRecord().getServiceData();
+        public void onScanResult(int callbackType, ScanResult result) {
+            Log.d(TAG, "onScanResult: " + result.getDevice().getName() + " " + result.getDevice().getAddress() + " (" + result.getRssi() +")");
 
-            for (ParcelUuid i : t.keySet()) {
-                String beaconContent = new String(t.get(i), UTF8).trim();
-                Log.d(TAG, "getServiceData: " + i.getUuid() + " " + t.get(i) + " (" + beaconContent + ")");
+            if (isANewBeacon(result.getDevice(), result.getRssi())) {
+                Map<ParcelUuid, byte[]> t = result.getScanRecord().getServiceData();
+                String beaconContent = "";
+                for (ParcelUuid i : t.keySet()) {
+                    beaconContent = new String(t.get(i), UTF8).trim();
+                    Log.d(TAG, "getServiceData: " + i.getUuid() + " " + t.get(i) + " (" + beaconContent + ")");
+                }
                 sendLocationToActivity(beaconContent);
             }
-            stop();
+
         }
 
         @Override
@@ -44,7 +47,7 @@ public class BTLEv21Service extends BTLEService {
             String errorMsg = errorCodeToString(errorCode);
             Log.d(TAG, "onScanFailed " + errorMsg);
             sendErrorToActivity(errorMsg);
-            stopScanning();
+            stop();
         }
     };
 
@@ -52,7 +55,7 @@ public class BTLEv21Service extends BTLEService {
     void startScanning() {
         if (!bluetoothAdapter.isEnabled()) {
             Log.d(TAG, "Bluetooth is disabled");
-            stopSelf();
+            stop();
             return;
         }
         stopScanning();

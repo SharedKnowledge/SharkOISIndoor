@@ -56,8 +56,8 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
     private static final int REQUEST_IS_LOCATION_ENABLED = 789;
     private static final int REQUEST_IS_NETWORK_ENABLED = 780;
 
-    private boolean isSearching = false;
     private boolean hasBeaconFound = false;
+    private boolean isDialogShown = false;
     private ProgressDialog dialog;
     private BTLEReceiver btleReceiver;
     private IntentFilter filter;
@@ -176,7 +176,7 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_ac_tabbed, menu);
-        searchView = (SearchView) menu.findItem(R.id.action_seach_topic).getActionView();
+        searchView = (SearchView) menu.findItem(R.id.action_search_topic).getActionView();
         searchView.setIconifiedByDefault(false);
         return true;
     }
@@ -186,6 +186,9 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
         switch (item.getItemId()) {
             case R.id.action_bluetooth_settings:
                 startActivity(new Intent(Settings.ACTION_BLUETOOTH_SETTINGS));
+                return true;
+            case R.id.action_location_settings:
+                startActivityForResult(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS), REQUEST_IS_LOCATION_ENABLED);
                 return true;
             case R.id.action_settings:
                 Util.showUIMessage(content, R.string.action_settings);
@@ -207,9 +210,10 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
         }
     }
 
-    private void stopSearching(){
-        BTLEService.stopService(this);
-        isSearching = false;
+    private void stopSearching(boolean keepSearching) {
+        if (!keepSearching) {
+            BTLEService.stopService(this);
+        }
         ((AdminFragment) sectionsPagerAdapter.getItem(1)).onStopSearching();
         if (dialog != null) {
             dialog.dismiss();
@@ -285,14 +289,14 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
     }
 
     private void startSearchingForBeacons() {
-        Log.d(TAG, "startSearchingForBeacons: Searching: " + isSearching + " found: " + hasBeaconFound);
-        if (isBluetoothEnabled && isLocationEnabled && isNetworkAvailable && !hasBeaconFound && !isSearching) {
-            isSearching = true;
+        Log.d(TAG, "startSearchingForBeacons: " + hasBeaconFound);
+        if (isBluetoothEnabled && isLocationEnabled && isNetworkAvailable && !isDialogShown) {
             Log.d(TAG, "startSearchingForBeacons: start");
             BTLEService.startService(this);
-            showSearchingDialog();
-            AdminFragment f = (AdminFragment) sectionsPagerAdapter.getItem(1);
-            f.onStartSearching();
+            if (!hasBeaconFound) {
+                showSearchingDialog();
+            }
+            ((AdminFragment) sectionsPagerAdapter.getItem(1)).onStartSearching();
         }
     }
 
@@ -361,12 +365,14 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
         dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                stopSearching();
+                isDialogShown = false;
+                stopSearching(true);
             }
         });
         dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         dialog.setIndeterminate(true);
         dialog.show();
+        isDialogShown = true;
     }
 
     /**
@@ -426,7 +432,7 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
                     break;
 
                 case BTLEService.RESPONSE_ERROR:
-                    stopSearching();
+                    stopSearching(false);
                     Util.showUIMessage(content, intent.getStringExtra(BTLEService.RESPONSE_ERROR_VALUE));
                     break;
 
@@ -436,8 +442,8 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
             }
         }
 
-        private void handleFoundBeacon(String url){
-            stopSearching();
+        private void handleFoundBeacon(String url) {
+            stopSearching(true);
             final PositioningFragment f0 = (PositioningFragment) sectionsPagerAdapter.getItem(0);
             final AdminFragment f1 = (AdminFragment) sectionsPagerAdapter.getItem(1);
 
@@ -447,7 +453,7 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
                     @Override
                     public void onResult(ArrayList<Topic> data) {
                         f0.updateTopics(data);
-                        initSearchView(Topic.ITEMS);
+                        initSearchView(data);
                         hasBeaconFound = true;
                     }
                 });

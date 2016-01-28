@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -26,8 +25,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            tools:text="Lat" />
+            android:text="@string/latitude_TXT"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
             android:id="@+id/f_positioning_lon"
@@ -35,8 +34,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            tools:text="Lon" />
+            android:text="@string/longitude_TXT"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
             android:id="@+id/f_positioning_alt"
@@ -44,8 +43,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            tools:text="Alt" />
+            android:text="@string/altitude_TXT"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
     </LinearLayout>
 
