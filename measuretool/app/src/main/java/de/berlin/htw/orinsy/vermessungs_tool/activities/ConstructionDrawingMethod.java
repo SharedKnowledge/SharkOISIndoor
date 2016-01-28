@@ -31,7 +31,6 @@ import de.berlin.htw.orinsy.vermessungs_tool.utils.GeoDataSave;
  * @author Maik Müller
  */
 
-
 public class ConstructionDrawingMethod extends Activity {
 
     private ArrayList<String> getResults, getSetupCoordinates;
@@ -175,7 +174,7 @@ public class ConstructionDrawingMethod extends Activity {
 
                     getResults.add("Info: " + info + " Height: " + height + " Floor: " + floor + "\nLa: " + newLatitude + "\nLo: " + newLongitude);
 
-                } // End of onClick(DialogInterface dialog, int whichButton)
+                }
             });
             alert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
