@@ -3,7 +3,7 @@ package de.berlin.htw.orinsy.vermessungs_tool.utils;
 /**
  * @brief class provides longitude and latitude calculations
  *
- * @author Maik M.
+ * @author Maik M
  */
 public class CalculateGeoDataCompass {
     

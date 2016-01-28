@@ -26,7 +26,7 @@ import de.berlin.htw.orinsy.vermessungs_tool.utils.GeoDataSave;
 /**
  * @brief compass method activity provides possibility to calculate new latitude and longitude from measured datas
  *
- * @author Maik Müller
+ * @author Maik M
  */
 
 public class CompassMethod extends Activity {

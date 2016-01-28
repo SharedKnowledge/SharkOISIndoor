@@ -28,7 +28,7 @@ import de.berlin.htw.orinsy.vermessungs_tool.utils.GeoDataSave;
  * @brief construction drawing method provides possibility to calculate new latitude and longitude with help
  *          of consruction drawing.
  *
- * @author Maik Müller
+ * @author Maik M
  */
 
 public class ConstructionDrawingMethod extends Activity {

@@ -5,7 +5,7 @@ import android.util.Log;
 /**
  * @brief class provides longitude and latitude calculations with help of start and reference coordinates
  *
- * @author Maik M.
+ * @author Maik M
  */
 
 public class CalculateGeoDataConstructionDrawing  {
