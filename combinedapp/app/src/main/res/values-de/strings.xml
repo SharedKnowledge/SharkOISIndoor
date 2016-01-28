@@ -1,7 +1,28 @@
 <resources>
 
+    <string name="action_search">Suchen</string>
+    <string name="action_bluetooth_settings">Bluetootheinstellungen</string>
+    <string name="action_location_settings">Standorteinstellungen</string>
+    <string name="action_settings">Einstellungen</string>
+
+    <string name="myLocation">Mein Standort</string>
+    <string name="myLocationBeaconContent">Beacon</string>
+    <string name="fix">Fix</string>
+    <string name="bt_searchForBeacons">Suche nach Signalen&#8230;</string>
+
+    <string name="permissions">Berechtigungen</string>
+    <string name="permission_text">Wir brauchen die Standortberechtigung um Beacons zu finden.</string>
+    <string name="enable_requirements">Bluetooth, Standorterfassung und Internet müssen aktiviert sein, damit wir Beacons finden können.</string>
+
+    <!-- Dialoge -->
+    <string name="bluetooth_enable">Bluetooth</string>
+    <string name="bluetooth_enable_text">Leider ist Bluetooth deaktiviert. Bitte aktiviere Bluetooth via <i>Fix</i>.</string>
+    <string name="location_enable">No Location provider</string>
+    <string name="location_enable_text">Leider ist die Standorterfassung deaktiviert. Bitte aktiviere GPS via <i>Fix</i>.</string>
+    <string name="network_enabled">Kein Verbindung</string>
+    <string name="network_enabled_text">Leider ist kein Netzwerk verfügbar. Bitte aktiviere es.</string>
+
     <!-- Fragment-->
-    <string name="app_name">OIS-Indoor</string>
     <string name="middleButton_TXT">Upload zur Sharkdatenbank</string>
     <string name="latitude_TXT">Latitude</string>
     <string name="longitude_TXT">Longitude</string>
@@ -19,7 +40,7 @@
     <string name="no_permissions_granted_1">Keine</string>
     <string name="no_permissions_granted_2">Berechtigung</string>
     <string name="no_permissions_granted_3">erhalten</string>
-    <string name="uploud_information">Diese Daten hochladen?</string>
+    <string name="upload_information">Diese Daten hochladen?</string>
     <string name="upload">Upload</string>
     <string name="topic_err">Trage ein Thema ein</string>
     <string name="author_err">Trage einen Autor ein</string>
@@ -30,10 +51,6 @@
         Sharkdatenbank zu hinterlegen. Der Eintrag enthält:\n• Die Geo-Informationen\n• Ein Thema\n• Einen Autor\n• Einen Inhalt\n</string>
 
     <!-- BLESniffer -->
-    <string name="bluetooth_not_enabled">Bluetooth ist leider nicht aktiviert. Wir können keine Beacons für dich finden. Bitte aktiviere dein Bluetooth.</string>
-    <string name="bluetooth_safe_enable">Bluetooth sicher aktivieren</string>
-    <string name="location_enable">GPS ist leider nicht aktiviert. Ab Android Marshmellow, benötigen wir es zusätzlich um die BLE-Beacons zu finden. Bitte aktiviere dein GPS.</string>
-    <string name="open_location_settings">Öffne Ortungseinstellungen</string>
     <string name="no_propper_geos_1">Keine</string>
     <string name="no_propper_geos_2">korrekten</string>
     <string name="no_propper_geos_3">Geos</string>

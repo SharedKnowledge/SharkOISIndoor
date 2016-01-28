@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -67,33 +68,33 @@ public class Util {
         }
         isDialogShown = true;
         new AlertDialog.Builder(c)
-            .setCancelable(false)
-            .setIcon(iconID)
-            .setTitle(titleID)
-            .setMessage(messageID)
-            .setPositiveButton(R.string.fix, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    callback.onPositiveButtonPressed();
-                    isDialogShown = false;
-                    dialog.dismiss();
-                }
-            })
-            .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    callback.onNegativeButtonPressed();
-                    isDialogShown = false;
-                    dialog.dismiss();
-                }
-            })
-            .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                @Override
-                public void onDismiss(DialogInterface dialog) {
-                    Log.d("Util", "onDismiss");
-                }
-            })
-            .show();
+                .setCancelable(false)
+                .setIcon(iconID)
+                .setTitle(titleID)
+                .setMessage(messageID)
+                .setPositiveButton(R.string.fix, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        callback.onPositiveButtonPressed();
+                        isDialogShown = false;
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        callback.onNegativeButtonPressed();
+                        isDialogShown = false;
+                        dialog.dismiss();
+                    }
+                })
+                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        Log.d("Util", "onDismiss");
+                    }
+                })
+                .show();
     }
 
     public static void showUIMessage(@NonNull View v, @StringRes int res) {
@@ -110,33 +111,38 @@ public class Util {
      * from the given String using a while loop until all characters are analyzed.
      * If the method found exactly three geo values the search finished successfully and those values
      * will be returned. Else a default return value will be created.
-     * @param geoAsString   A String may holding geo information
-     * @return  Either an ArrayList<String> with found geos or an ArrayList<String> with the content
+     *
+     * @param geoAsString A String may holding geo information
+     * @return Either an ArrayList<String> with found geos or an ArrayList<String> with the content
      * "Keine","korrekten",geos".
      */
-    public static List<String> readPropperGEO(String geoAsString){
+    public static List<String> readPropperGEO(final Resources r, String geoAsString) {
         int matched = 0;
         List<String> results = new ArrayList<>();
         Pattern pattern = Pattern.compile("(\\+|-)?\\d{1,3}\\.\\d*");
         Matcher matcher = pattern.matcher(geoAsString);
         Log.i("readPropperGEO(Str):", "START");
-        while ( matcher.find()  ) {
+        while (matcher.find()) {
             Log.i("( " + ++matched + " ) Matched: ", matcher.group());
             results.add(matcher.group());
-            if ( matched > 3 ) {
-                Log.e("Util_readPropperGEO", "Found more information(" + matched + "), than needed. Break loop.");
+            if (matched > 3) {
+                Log.e("Util", "Found more information(" + matched + "), than needed. Break loop.");
                 break;
             }
         }
         Log.i("readPropperGeo(Str):", "END " + matched);
-        if ( matched == 3 )
+        if (matched == 3)
             return results;
         else {
-            return new ArrayList<String>(){{ add(R.string.no_propper_geos_1 + "");
-                add(R.string.no_propper_geos_2 + ""); add(R.string.no_propper_geos_3 + ""); }};
+            return new ArrayList<String>() {{
+                add(r.getString(R.string.no_propper_geos_1));
+                add(r.getString(R.string.no_propper_geos_2));
+                add(r.getString(R.string.no_propper_geos_3));
+            }};
         }
     }
 
-    private Util() {}
+    private Util() {
+    }
 
 }
