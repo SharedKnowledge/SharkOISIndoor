@@ -49,16 +49,44 @@ import de.berlin.htw.oisindoor.userapp.shark.GenericCallback;
 import de.berlin.htw.oisindoor.userapp.shark.SharkDownloader;
 import de.berlin.htw.oisindoor.userapp.util.Util;
 
+/**
+ * Main Klasse für die App
+ * Es wird eine TabView erzeugt in der, die aktuell zwei Fragments {@link PositioningFragment} und
+ * {@link AdminFragment} dargestellt werden.
+ * Diese Activity
+ */
 public class TabbedActivity extends AppCompatActivity implements AdminFragment.OnFragmentInteractionListener {
+    /**
+     * LOG Indicator
+     */
     private static final String TAG = TabbedActivity.class.getSimpleName();
+    /**
+     * request code for #startActivityForResult, when asking for the {@link android.Manifest.permission#ACCESS_COARSE_LOCATION}
+     */
     private static final int REQUEST_ACCESS_COARSE_LOCATION = 561;
+    /**
+     * request code for #startActivityForResult, when asking to enable Bluetooth
+     */
     private static final int REQUEST_IS_BLUETOOTH_ENABLED = 788;
+    /**
+     * request code for #startActivityForResult, when asking to enable a location provider
+     */
     private static final int REQUEST_IS_LOCATION_ENABLED = 789;
+    /**
+     * request code for #startActivityForResult, when asking to enable a network
+     */
     private static final int REQUEST_IS_NETWORK_ENABLED = 780;
 
     private boolean isSearching = false;
     private boolean hasBeaconFound = false;
+
+    /**
+     * member for a dialog, which is only shown on the first searching {@see #showSearchingDialog}
+     */
     private ProgressDialog dialog;
+    /**
+     * reference to a {@link de.berlin.htw.oisindoor.userapp.TabbedActivity.BTLEReceiver}
+     */
     private BTLEReceiver btleReceiver;
     private IntentFilter filter;
     private LocalBroadcastManager localBroadcastManager;
@@ -68,10 +96,21 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
     @Bind(R.id.ac_tabbed_vp) ViewPager viewPager;
     @Bind(R.id.ac_tabbed_main_content) View content;
 
-    // handle Permissions
+    /**
+     * Indicates if the app has all necessary permissions
+     */
     private boolean hasNecessaryPermissions;
+    /**
+     * Indicates if a location provider is enabled
+     */
     private boolean isLocationEnabled;
+    /**
+     * Indicates if bluetooth is enabled
+     */
     private boolean isBluetoothEnabled;
+    /**
+     * Indicates if an internet network is available
+     */
     private boolean isNetworkAvailable;
 
     @Override
@@ -197,6 +236,16 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
 
     /* Permissions */
 
+    /**
+     * tries to start a searching process</br>
+     * the method checks if all following requirements are met:
+     * <ul>
+     *     <li>Network is available (Communication to the Shark-DB)</li>
+     *     <li>Bluetooth ist enabled (and from Android Lollipop, the Bluetooth Permissions are granted)</li>
+     *     <li>A location provider (e.g. GPS) is enabled</li>
+     * </ul>
+     *
+     */
     private void startSearching() {
         checkNecessaryPermission();
         if (hasNecessaryPermissions) {
@@ -207,6 +256,13 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
         }
     }
 
+    /**
+     * stop a searching process</br>
+     * <ul>
+     *     <li>Stops the {@link BTLEService search}</li>
+     *     <li>hides the dialog, if it's shown</li>
+     * </ul>
+     */
     private void stopSearching(){
         BTLEService.stopService(this);
         isSearching = false;
@@ -216,6 +272,10 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
         }
     }
 
+    /**
+     * checks if the {@link android.Manifest.permission#ACCESS_COARSE_LOCATION} is granted
+     * if not, the App request the permission
+     */
     @TargetApi(Build.VERSION_CODES.M)
     private void checkNecessaryPermission() {
         Log.d(TAG, "checkNecessaryPermission");
@@ -227,6 +287,11 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
         }
     }
 
+    /**
+     * checks if Bluetooth is enabled
+     * if not, a dialog is shown, which informs the user and provides a <i>Fix</i> button,
+     * which allows the user to fix the problem
+     */
     private void checkBluetoothIsActive() {
         isBluetoothEnabled = Util.isBluetoothEnabled(this);
         Log.d(TAG, "checkBluetoothIsActive: " + isBluetoothEnabled);
@@ -246,6 +311,11 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
         }
     }
 
+    /**
+     * checks if an internet network is available
+     * if not, a dialog is shown, which informs the user and provides a <i>Fix</i> button,
+     * which sends the user to the android network settings
+     */
     private void checkNetworkIsAvailable() {
         isNetworkAvailable = Util.isInternetAvailable(this);
         Log.d(TAG, "checkNetworkIsAvailable: " + isNetworkAvailable);
@@ -265,6 +335,12 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
         }
     }
 
+    /**
+     * checks if a location provider is enabled
+     * if not, a dialog is shown, which informs the user and provides a <i>Fix</i> button,
+     * which sends the user to the android location settings
+     * <b>Only on Android M or above</b>
+     */
     private void checkLocationIsAvailable() {
         isLocationEnabled = Util.isLocationProviderEnabled(this);
         Log.d(TAG, "checkLocationIsAvailable: " + isLocationEnabled);
@@ -284,6 +360,21 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
         }
     }
 
+    /**
+     * start a search process
+     * <ul>
+     *     <li>show a process dialog (once while the first searching</li>
+     *     <li>start a search process {@link BTLEService search process} </li>
+     * </ul></br>
+     * The following requirements must be met:
+     * <ul>
+     *     <li>Network is available (Communication to the Shark-DB)</li>
+     *     <li>Bluetooth ist enabled (and from Android Lollipop, the BT Permissions are granted)</li>
+     *     <li>From Android Lollipop, a location provider(e.g. GPS) is enabled</li>
+     * </ul>
+     *
+     * if a least one requirement isn't met, no searching process is started
+     */
     private void startSearchingForBeacons() {
         Log.d(TAG, "startSearchingForBeacons: Searching: " + isSearching + " found: " + hasBeaconFound);
         if (isBluetoothEnabled && isLocationEnabled && isNetworkAvailable && !hasBeaconFound && !isSearching) {
@@ -352,6 +443,9 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
         });
     }
 
+    /**
+     * show an ProgressDialog, which is cancelable or stopped via {@see TabbedActivity.stopSearching}
+     */
     private void showSearchingDialog() {
         dialog = new ProgressDialog(this);
         dialog.setIcon(R.mipmap.perm_group_bluetooth);
@@ -411,6 +505,10 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
         }
     }
 
+    /**
+     * local BroadcastReceiver, which receives signals from the {@link BTLEService}
+     * the Broadcast contains the location or an error message
+     */
     private class BTLEReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -426,8 +524,14 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
                     break;
 
                 case BTLEService.RESPONSE_ERROR:
-                    stopSearching();
-                    Util.showUIMessage(content, intent.getStringExtra(BTLEService.RESPONSE_ERROR_VALUE));
+                    final String errorMsg = intent.getStringExtra(BTLEService.RESPONSE_ERROR_VALUE)
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            stopSearching();
+                            Util.showUIMessage(content, errorMsg);
+                        }
+                    });
                     break;
 
                 default:
@@ -436,6 +540,11 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
             }
         }
 
+        /**
+         * handles the found URL, which contains the location data
+         *
+         * @param url - read location data
+         */
         private void handleFoundBeacon(String url){
             stopSearching();
             final PositioningFragment f0 = (PositioningFragment) sectionsPagerAdapter.getItem(0);

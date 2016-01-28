@@ -65,8 +65,8 @@ Es ist nicht möglich unter Android diesen Vorgang zu automatisieren.
 Lehnt er die manuelle Aktivierung ab, kann kein Scan gestartet werden.  
   
 Im Anschluss, sollte der Benutzer sein Bluetooth deaktiviert haben, erhält er einen Hinweis darauf, dass sein Bluetooth derzeit deaktiviert ist.
- Es ist ihm möglich aus dem Dialogfenster heraus, das Bluetooth "sicher" zu aktivieren. Das bedeutet, dass der Programmierer das Androidsystem die Aktivierung vornehmen lässt. 
- Lehnt er die Aktivierung ab, kann kein Scan gestartet werden.  
+Es ist ihm möglich aus dem Dialogfenster heraus, das Bluetooth "sicher" zu aktivieren. Das bedeutet, dass der Programmierer das Androidsystem die Aktivierung vornehmen lässt. 
+Lehnt er die Aktivierung ab, kann kein Scan gestartet werden.  
 
 Generell werden diese drei Statusuntersuchungen bei jedem Scanstart unternommen.  
 
