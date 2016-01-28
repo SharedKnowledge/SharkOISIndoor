@@ -58,7 +58,7 @@ public class SharkUploader extends AsyncTask<Void, Void, Boolean> {
         Log.i(TAG, "Upload started.");
         if (!validateData())
             Log.w(TAG, "Uploading data is corrupted");
-        // Add all you whant to do before uploading here
+        // Add all you want to do before uploading here
         super.onPreExecute();
     }
 
@@ -71,7 +71,7 @@ public class SharkUploader extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected void onPostExecute(Boolean aBoolean) {
         Log.i(TAG, "Upload finished.");
-        // Add all you whant to do after uploading here
+        // Add all you want to do after uploading here
         super.onPostExecute(aBoolean);
     }
 }
