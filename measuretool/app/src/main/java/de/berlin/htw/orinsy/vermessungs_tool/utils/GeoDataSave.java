@@ -7,8 +7,14 @@ import java.io.OutputStreamWriter;
 import java.util.List;
 
 /**
- * Created by ziera on 10.12.2015.
+ * Die Klasse GeoDataSave speichert die uebergebenen Objekte <GeoData> in eine eigene Datei mit
+ * der Endung .mgs.
+ * Jede Variable wird dabei in jeweils eine Zeile geschrieben.
+ *
+ * @param List<GeoData> allGeoData ist die uebergeben Liste an Objekte, welche abgespeichert werden
+ * @param File dataFile gibt den Ort und den Namen der Datei an, die erstellt wird
  */
+
 public class GeoDataSave {
 
 

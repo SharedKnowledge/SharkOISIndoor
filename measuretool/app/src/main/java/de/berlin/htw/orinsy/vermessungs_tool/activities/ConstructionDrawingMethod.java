@@ -25,8 +25,12 @@ import de.berlin.htw.orinsy.vermessungs_tool.utils.GeoDataLoad;
 import de.berlin.htw.orinsy.vermessungs_tool.utils.GeoDataSave;
 
 /**
- * @author Maik M
+ * @brief construction drawing method provides possibility to calculate new latitude and longitude with help
+ *          of consruction drawing.
+ *
+ * @author Maik Müller
  */
+
 
 public class ConstructionDrawingMethod extends Activity {
 
@@ -44,7 +48,6 @@ public class ConstructionDrawingMethod extends Activity {
     private List<GeoData> newGeoDataList;
     private GeoData geoDataXml;
     private File newDataFile;
-    private final String MYLOG = "My Log";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

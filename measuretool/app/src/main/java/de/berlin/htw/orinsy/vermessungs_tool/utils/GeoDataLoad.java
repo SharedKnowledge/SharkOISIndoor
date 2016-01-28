@@ -9,8 +9,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by ziera on 10.12.2015.
+ * Die Klasse GeoDataLoad laedt die Daten aus der erstellten Datei der Klasse GeoDataSave.java.
+ * Die Datei wird Zeile fuer Zeile ausgelesen. Da in jeder Zeile eine bestimmte Variable steht
+ * wird diese auch passend abgelegt und dann mit diesen ein neues <GeoData> Objekt erstellt und
+ * einer Liste uebergeben
+ *
+ * @param File file Gibt den Ort und Namen der zu ladenden Datei an.
+ *
+ * @return Gibt eine Liste von GeoData zurueck
  */
+
 public class GeoDataLoad {
 
     public static List<GeoData> loadGeoData (File file) throws IOException{

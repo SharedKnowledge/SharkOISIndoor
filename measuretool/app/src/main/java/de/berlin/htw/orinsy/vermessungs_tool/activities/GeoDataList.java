@@ -25,6 +25,8 @@ import de.berlin.htw.orinsy.vermessungs_tool.utils.GeoDataSave;
 import de.berlin.htw.orinsy.vermessungs_tool.utils.Measurement;
 
 /**
+ * @brief activity lists calculated geo datas with help of scroll view
+ *
  * @author Maik M, ziera
  */
 
@@ -47,6 +49,8 @@ public class GeoDataList extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_geo_data_list_compass);
+
+        // verification of intent content
 
         subActivityExtras = getIntent().getExtras();
 
@@ -77,6 +81,8 @@ public class GeoDataList extends Activity {
         dataFileConstruction = new File(Environment.getExternalStorageDirectory() , "/GeoDatas/geoDataConstruction.mgs");
         xmlFileCompass = new File(Environment.getExternalStorageDirectory() , "/GeoDatas/geoDataCompass.xml");
         xmlFileConstuction = new File(Environment.getExternalStorageDirectory() , "/GeoDatas/geoDataConstruction.xml");
+
+        // load and read geo datas from file
 
         try{
             newGeoDataList = GeoDataLoad.loadGeoData(newDataFile);

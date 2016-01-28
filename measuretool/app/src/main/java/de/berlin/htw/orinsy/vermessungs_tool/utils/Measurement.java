@@ -6,8 +6,11 @@ import org.simpleframework.xml.Root;
 import java.util.List;
 
 /**
- * Created by ziera on 07.12.2015.
+ * Die Klasse Measurement ist nur fuer den Aufbau der XML-Datei zustaendig.
+ * Es wird eine Liste von GeoData uebergeben und diese wird dann also
+ * XML-Tree uebernommen.
  */
+
 @Root
 public class Measurement {
     @ElementList

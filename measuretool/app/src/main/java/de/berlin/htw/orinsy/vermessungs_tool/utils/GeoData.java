@@ -4,7 +4,10 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
 /**
- * Created by ziera on 07.12.2015.
+ * Klasse GeoData verwaltet alle Daten, die fuer die Geokoordinaten notwendig sind und spaeter
+ * in der XML-Datei von relevant sind.
+ * Ebenso wirds das Simpelframework fuer den xml Export importiert, dadurch kann man durch
+ * einfache Befehle, Variablen als Elemente in die XML-Datei einbinden.
  */
 
 @Root

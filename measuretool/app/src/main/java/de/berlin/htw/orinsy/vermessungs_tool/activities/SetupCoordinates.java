@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import de.berlin.htw.orinsy.vermessungs_tool.R;
 
 /**
+ * @brief setup coordinates class provides possibility to setup start and reference coordinates
+ *
  * @author Maik M
  */
 
@@ -88,12 +90,15 @@ public class SetupCoordinates extends Activity {
         }
     }
 
+    /**
+     * @brief alert builder class creates and shows dialogue with different texts and functions, affected
+     *          by key value
+     */
 
     public class AlertBuilder {
 
         /**
-         * @brief constructor, creates and shows dialogue with different texts and functions, affected
-         *          by key value
+         * @brief constructor
          *
          * @param context
          */

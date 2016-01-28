@@ -24,6 +24,8 @@ import de.berlin.htw.orinsy.vermessungs_tool.utils.GeoDataLoad;
 import de.berlin.htw.orinsy.vermessungs_tool.utils.GeoDataSave;
 
 /**
+ * @brief compass method activity provides possibility to calculate new latitude and longitude from measured datas
+ *
  * @author Maik M
  */
 
@@ -95,6 +97,8 @@ public class CompassMethod extends Activity {
                     inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     inputManager.hideSoftInputFromWindow((null == getCurrentFocus()) ? null : getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
+                    // Alertbuilder for information input
+
                     AlertDialog.Builder alert = new AlertDialog.Builder(context);
                     alert.setMessage("Enter Info for Geo Data");
 
@@ -142,6 +146,8 @@ public class CompassMethod extends Activity {
                     break;
 
                 case R.id.btn_apply_new_geodata:
+
+                    // intent filled with calculated geo datas
 
                     intent = new Intent(this, GeoDataList.class).putStringArrayListExtra("newGeoDatas", results);
                     startActivityForResult(intent, SUBACTIVITY_REQUESTCODE);

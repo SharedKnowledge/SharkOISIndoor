@@ -12,6 +12,8 @@ import java.io.File;
 import de.berlin.htw.orinsy.vermessungs_tool.R;
 
 /**
+ * @brief start activity provides 2 buttons to choose between separate longitude and latitude calculations
+ *
  * @author Maik M
  */
 
