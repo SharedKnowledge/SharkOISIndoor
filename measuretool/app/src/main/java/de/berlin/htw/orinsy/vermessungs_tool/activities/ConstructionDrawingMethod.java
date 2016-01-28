@@ -25,6 +25,9 @@ import de.berlin.htw.orinsy.vermessungs_tool.utils.GeoDataLoad;
 import de.berlin.htw.orinsy.vermessungs_tool.utils.GeoDataSave;
 
 /**
+ * @brief construction drawing method provides possibility to calculate new latitude and longitude with help
+ *          of consruction drawing.
+ *
  * @author Maik M
  */
 
@@ -44,7 +47,6 @@ public class ConstructionDrawingMethod extends Activity {
     private List<GeoData> newGeoDataList;
     private GeoData geoDataXml;
     private File newDataFile;
-    private final String MYLOG = "My Log";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,14 +125,17 @@ public class ConstructionDrawingMethod extends Activity {
         }
     }
 
+    /**
+     * @brief inner class creates and shows dialogue to add an information, shown in list entry
+     */
+
     public class AlertBuilder {
 
         /**
-         * @brief constructor, creates and shows dialogue to add an information, shown in list entry
+         * @brief constructor
          *
          * @param context
          */
-
 
         public AlertBuilder(Context context) {
 
@@ -169,7 +174,7 @@ public class ConstructionDrawingMethod extends Activity {
 
                     getResults.add("Info: " + info + " Height: " + height + " Floor: " + floor + "\nLa: " + newLatitude + "\nLo: " + newLongitude);
 
-                } // End of onClick(DialogInterface dialog, int whichButton)
+                }
             });
             alert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
