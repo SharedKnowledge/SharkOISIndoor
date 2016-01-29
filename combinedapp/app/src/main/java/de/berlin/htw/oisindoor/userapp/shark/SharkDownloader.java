@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import de.berlin.htw.oisindoor.userapp.model.Topic;
 
 /**
- * Class which does send the read URL (the location info) to the Shark-DB Server</br>
- * Result is ja List of {@link Topic Topics}</br>
+ * Class which does send the read URL (the location info) to the Shark-DB Server<br/>
+ * Result is ja List of {@link Topic Topics}<br/>
  * To do not block the UI, it is implemented a AsyncTask
  * @author Max M
  */

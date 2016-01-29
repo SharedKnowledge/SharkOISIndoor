@@ -25,7 +25,7 @@ import de.berlin.htw.oisindoor.userapp.model.Topic;
 import de.berlin.htw.oisindoor.userapp.util.Util;
 
 /**
- * Fragment, which contains a statusbar with the current locations and a list containing topics related to the location</br>
+ * Fragment, which contains a statusbar with the current locations and a list containing topics related to the location<br/>
  * Any Activity can easily update the content, (the location and the topic list) via
  * {@link #updatePosition(String)} and {@link #updateTopics(List)}
  *

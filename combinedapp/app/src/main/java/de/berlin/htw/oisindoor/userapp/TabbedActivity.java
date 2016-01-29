@@ -50,14 +50,17 @@ import de.berlin.htw.oisindoor.userapp.shark.SharkDownloader;
 import de.berlin.htw.oisindoor.userapp.util.Util;
 
 /**
- * Main Classe for the OIS Indoor app
- * The maincontent is a tabview, which contains a {@link PositioningFragment} and an
- * {@link AdminFragment}
+ * Main Class for the OIS Indoor app
+ * <p> The main content is a {@link android.support.design.widget.TabLayout.TabView}, which contains a {@link PositioningFragment}
+ * and an {@link AdminFragment} </p>
+ * <p>When the app becomes visible (#onStart) the app tries to start a scanning process, when minimized or finished the app stops the search</p>
  * Via a {@link FloatingActionButton}, the user can restart the bluetooth signals searching
  *
  * @see BTLEService
- *
- * @author  Max M
+ * @see PositioningFragment
+ * @see AdminFragment
+ * @see de.berlin.htw.oisindoor.userapp.TabbedActivity.BTLEReceiver
+ * @author Max M
  */
 public class TabbedActivity extends AppCompatActivity implements AdminFragment.OnFragmentInteractionListener {
     /**
@@ -207,9 +210,9 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
         switch (requestCode) {
             case REQUEST_ACCESS_COARSE_LOCATION: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                    Log.i(TAG, "Permission garanted");
+                    Log.d(TAG, "Permission granted");
                 } else {
-                    Log.w(TAG, "Permission not garanted");
+                    Log.w(TAG, "Permission not granted");
                     Toast.makeText(this, R.string.no_permissions_granted, Toast.LENGTH_SHORT).show();
                     finish();
                 }
@@ -397,7 +400,7 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
     }
 
     /**
-     * Init the Searchview in the toolbar</br>
+     * Init the SearchView in the toolbar</br>
      * Currently it will filter the title of the topics
      * Clicks on a search result will open the url
      * @param topicList - list of topics received from the shark-db
@@ -459,7 +462,7 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
     }
 
     /**
-     * show an ProgressDialog, which is cancelable or stopped via {@see TabbedActivity.stopSearching}
+     * show an ProgressDialog, which is cancelable or stopped via {@link TabbedActivity#stopSearching(boolean)}
      */
     private void showSearchingDialog() {
         dialog = new ProgressDialog(this);
@@ -481,7 +484,7 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
 
     /**
      * {@link de.berlin.htw.oisindoor.userapp.fragments.AdminFragment.OnFragmentInteractionListener#onFragmentInteraction(Uri)}
-     * @param uri
+     * @param uri - ???
      */
     @Override
     public void onFragmentInteraction(Uri uri) {
@@ -491,10 +494,9 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
     /* Classes */
 
     /**
-     * A FragmentPagerAdapter, which handles the Tabs
-     * The used Fragment must be created one and reused in #getItem, because the every time
-     * new created fragments will not handle the lifecycle correctly
-     *
+     * A FragmentPagerAdapter, which handles the Tabs<br/>
+     * The used Fragment must be created once and reused in {@link #getItem(int)},
+     * because the every time new created fragments will not handle the lifecycle correct
      */
     private class SectionsPagerAdapter extends FragmentPagerAdapter {
         private PositioningFragment p = PositioningFragment.newInstance();
@@ -564,7 +566,6 @@ public class TabbedActivity extends AppCompatActivity implements AdminFragment.O
 
         /**
          * handles the found URL, which contains the location data
-         *
          * @param url - read location data
          */
         private void handleFoundBeacon(String url) {

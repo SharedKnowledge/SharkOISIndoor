@@ -17,51 +17,50 @@ import java.nio.charset.Charset;
 import de.berlin.htw.oisindoor.userapp.util.Util;
 
 /**
- * Service for searching Bluetooth LE Signals</br></br>
- * This Class abstracts the searching from the Android version specific implementation</br>
+ * Service for searching Bluetooth LE Signals<p>
+ * This Class abstracts the searching from the Android version specific implementation<br/>
  * Only access this Service via it's static methods:
  * <ul>
- *     <li>start via {@link #startService}</li>
- *     <li>stop via {@link #stopService}</li>
+ *  <li>start via {@link #startService}</li>
+ *  <li>stop via {@link #stopService}</li>
  * </ul>
- *
+ * <p/>
  * Callback (found signals (representing an location with latitude, longitude and altitude) from beacons)
  * will only received the strongest signal from any beacons.
- * If a beacons signal is stronger then the latest received signal, an callback will be thrown.</br>
- * If a error occurs, an error callback will be thrown.</br>
+ * If a beacons signal is stronger then the latest received signal, an callback will be thrown.<br/>
+ * If a error occurs, an error callback will be thrown.<br/>
+ * <p/>
+ * Callback can be received on any {@link android.content.BroadcastReceiver} in a local Context {@link LocalBroadcastManager}}<br/>
+ * They need to listen for {@link #RESPONSE_LOCATION} and {@link #RESPONSE_ERROR} Action value in their {@link android.content.IntentFilter}<br/>
+ * Then, they can get a String extra: {@link #RESPONSE_LOCATION_VALUE} or {@link #RESPONSE_ERROR_VALUE}<br/>
+ * <p/>
+ * e.g. Callback via BroadcastReceiver<br/>
+ * <pre>
+ * {@code
+ * public void onReceive(Context context, Intent intent) {
+ *   switch (intent.getAction()){
+ *    case BTLEService.RESPONSE_LOCATION:
+ *     String url = intent.getStringExtra(BTLEService.RESPONSE_LOCATION_VALUE);
+ *     // ...
+ *     break;
+ *   case BTLEService.RESPONSE_ERROR:
+ *    String errorMsg = intent.getStringExtra(BTLEService.RESPONSE_ERROR_VALUE);
+ *    // ...
+ *    break;
+ *  }
+ * }
  *
- * Callback can be received on any {@link android.content.BroadcastReceiver} in a local Context {@link LocalBroadcastManager}}</br>
- * They need to listen for {@link #RESPONSE_LOCATION} and {@link #RESPONSE_ERROR} Action value in their {@link android.content.IntentFilter}</br>
- * Then, they can get a String extra: {@link #RESPONSE_LOCATION_VALUE} or {@link #RESPONSE_ERROR_VALUE}</br>
+ * // Register Receiver:
+ * IntentFilter filter = new IntentFilter();
+ * filter.addAction(BTLEService.RESPONSE_LOCATION);
+ * filter.addAction(BTLEService.RESPONSE_ERROR);
+ * LocalBroadcastManager.getInstance(**activity**).registerReceiver(**receiver**, filter);
  *
- * e.g. Callback via BroadcastReceiver</br>
- * <code>
- *   @Override
-     public void onReceive(Context context, Intent intent) {
-       switch (intent.getAction()){
-        case BTLEService.RESPONSE_LOCATION:
-         String url = intent.getStringExtra(BTLEService.RESPONSE_LOCATION_VALUE);
-         // ...
-         break;
-
-        case BTLEService.RESPONSE_ERROR:
-         String errorMsg = intent.getStringExtra(BTLEService.RESPONSE_ERROR_VALUE);
-         // ...
-         break;
-        }
-     }</code>
-    </br>
-    Register Receiver:
-    <code>
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BTLEService.RESPONSE_LOCATION);
-        filter.addAction(BTLEService.RESPONSE_ERROR);
-        LocalBroadcastManager.getInstance(**activity**).registerReceiver(**receiver**, filter);
-    </code>
+ * }</pre>
  *
+ * @author Max M
  * @see BTLEv18Service
  * @see BTLEv21Service
- * @author Max M
  */
 public abstract class BTLEService extends Service {
     public static final String RESPONSE_LOCATION = "de.berlin.htw.oisindoor.userapp.positioning.location";
@@ -71,9 +70,9 @@ public abstract class BTLEService extends Service {
 
     /**
      * starts the Service, which scans for bluetooth le signals</vr>
-     * Results can be received via a Broadcastreceiver
+     * Results can be received via a BroadcastReceiver
      * @see BTLEService
-     * @param context - Context
+     * @param context Context
      */
     public static void startService(Context context) {
         Class clazz = Util.isLollipop() ? BTLEv21Service.class : BTLEv18Service.class;
@@ -84,7 +83,7 @@ public abstract class BTLEService extends Service {
 
     /**
      * stops the Service, no more result can be received
-     * @param context - Context
+     * @param context Context
      */
     public static void stopService(Context context){
         Class clazz = Util.isLollipop() ? BTLEv21Service.class : BTLEv18Service.class;
@@ -168,12 +167,12 @@ public abstract class BTLEService extends Service {
     }
 
     /**
-     * checks if a received beacon </br>
-     * if it's closer to the user, a callback will be thrown via a Broadcast</br>
-     * the current device und signal strength are update too.
+     * checks if a received beacon
+     * <p>if it's closer to the user, a callback will be thrown via a Broadcast
+     * the current device und signal strength are update too.</p>
      *
-     * @param device - device, which
-     * @param rssi - signal strength of the device
+     * @param device device, which
+     * @param rssi signal strength of the device
      * @return true, if an update via a Broadcast should be thrown
      * else false
      */
@@ -196,7 +195,7 @@ public abstract class BTLEService extends Service {
 
     /**
      * send a Broadcast with the Key {@link #RESPONSE_LOCATION} and value {@link #RESPONSE_LOCATION_VALUE}
-     * @param url - received string from any beacon
+     * @param url received string from any beacon
      */
     void sendLocationToActivity(String url){
         Intent i = new Intent(RESPONSE_LOCATION);
@@ -206,7 +205,7 @@ public abstract class BTLEService extends Service {
 
     /**
      * send a Broadcast with the Key {@link #RESPONSE_ERROR} and value {@link #RESPONSE_ERROR_VALUE}
-     * @param errorMsg - an error message, which should help the user fix the error
+     * @param errorMsg an error message, which should help the user fix the error
      */
     void sendErrorToActivity(String errorMsg){
         Intent i = new Intent(RESPONSE_ERROR);
@@ -216,8 +215,8 @@ public abstract class BTLEService extends Service {
 
     /**
      * simple method to convert android error code to human readable string
-     * @param code - android error code
-     * @return - readable string
+     * @param code android error code
+     * @return readable string
      */
     static String errorCodeToString(int code) {
         switch (code){

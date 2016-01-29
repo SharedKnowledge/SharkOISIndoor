@@ -66,8 +66,8 @@ public class Util {
     }
 
     /**
-     * show a Dialog, with a Msg, Title, Image</br>
-     * clicks on <i>okay</i> or <i>cancel</i> will be received in the callback</br>
+     * show a Dialog, with a Msg, Title, Image<br/>
+     * clicks on <i>okay</i> or <i>cancel</i> will be received in the callback<br/>
      * only one dialog can be shown at the same time, if a dialog is already present, nothing happens
      * @param c - Context of the current activity
      * @param titleID - StringResource of a Title
